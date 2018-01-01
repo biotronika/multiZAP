@@ -1,12 +1,8 @@
 // multiZAP See: biotronika.pl
-#include <bioZAP_func.h>
-#include <multiZAP_def.h>
-#include <multiZAP_calib.h>
-#include <multiZAP_lcd.h>
-#include <multiZAP_menu.h>
-//#include <Keypad.h>
 
-boolean pcConnection;
+#include <multiZAP_menu.h>
+
+boolean pcConnection = false;
 
 
 void setup (){
@@ -19,12 +15,13 @@ void setup (){
 	pcConnection = (bat() < USB_POWER_SUPPLY_LEVEL);
 
 	if ( !(digitalRead(powerPin)==HIGH) && !pcConnection ) {
+	//if ( false) {
 
 		pinMode(powerPin,  OUTPUT);
 		digitalWrite(powerPin, HIGH);
 		lcd_init();
 
-		beep(500);
+
 
 		rechargeBattery();
 
@@ -36,20 +33,32 @@ void setup (){
 		lcd_init();
 	}
 
-	//TODO: Remove - initialize encoder for a prototype device only
+#ifdef ENCODER_PROTOTYPE
 	encoder_begin(encoderPin_A,encoderPin_B);
+#endif
 
 	Wire.begin();
 
 	//Initialize generator & pots
-	//wipersOFF();
+	wipersOFF();
 
 	//Calibrating battery level
 	minBatteryLevel=initBatteryLevel();
 
 	//Turning on is done.
-	beep(50);
+	//beep(50);
+	for (int j=0; j<3;j++){ beep(50); wait(100); }
 
+	//Initialize serial communication
+	Serial.begin(9600);
+    Serial.println(WELCOME_SCR);
+    Serial.print("Device ");
+    Serial.print(HRDW_VER);
+    Serial.print(" ");
+    Serial.println(SOFT_VER);
+
+	//Count to off
+	startInterval=millis();
 
 	//Calibration
 	message("Calibrating...");
@@ -63,25 +72,19 @@ void setup (){
 		} while (key==NO_KEY);
 	}
 
+	//beep(500); wait(500);
+
+
 	wipersOFF();
 
 	lcd_hello(pcConnection);
 
-	//Initialize serial communication
-	Serial.begin(9600);
-    Serial.println(WELCOME_SCR);
-    Serial.print("Device ");
-    Serial.print(HRDW_VER);
-    Serial.print(" ");
-    Serial.println(SOFT_VER);
-
-	//Count to off
-	startInterval=millis();
-
+	//beep(500); wait(500);
 }
 
 void loop(){
 
+	//beep(500); wait(500);
 
 	key = keypad.getKey();
 
@@ -95,7 +98,7 @@ void loop(){
 		  		  break;
 
 		  	  case 'B':
-		  		  key_B();
+		  		  //key_B();
 		  		  lcd.clear();
 		  		  lcd.print('B');
 		  		  break;

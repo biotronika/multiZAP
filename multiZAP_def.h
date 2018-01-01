@@ -1,13 +1,12 @@
 /*
- * definitions.h
+ * multiZAP_def.h
  *
  *  Created on: 26 dec 2017
  *      Author: elektros230
  */
 
 
-
-#include <Arduino.h>
+//#include <Arduino.h>
 
 #ifndef MULTIZAP_DEF_H_
 #define MULTIZAP_DEF_H_
@@ -20,14 +19,20 @@
 #include <Keypad.h>
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
-#include <libraries/DS1803/DS1803.h>
-#include <libraries/AD9850/AD9850.h>
+#include <DS1803.h>
+#include <AD9850.h>
+//#include <multiZAP_menu.h>
 
-//TODO: To remove - only prototype device
+//#define ENCODER_PROTOTYPE //TODO: To remove - only prototype device
+
+#ifdef ENCODER_PROTOTYPE
 #include <Encoder_Polling.h>
 #define encoderPin_A 3
 #define encoderPin_B 2
+#endif
 
+
+#define DS1803_I2C_ADDRESS 0x28
 
 #define AD9850__CLK A1
 #define AD9850__FQUP A2
@@ -36,9 +41,8 @@
 #define powerPin 4
 #define buzerPin 13
 
-#define outVoltagePin A6
+#define outVoltagePin PIN_A6
 
-#define DS1803_I2C_ADDRESS 0x28
 #define EEPROM_WIPER0_ADDRESS 1022
 #define EEPROM_WIPER1_ADDRESS 1023
 
@@ -46,11 +50,11 @@
 #define ONE_GRADE 0.015287    //REF_VOLTAGE/1023 --One bit //0.015635
 
 
-//Class constr.
 AD9850 ad9850(AD9850__CLK, AD9850__FQUP, AD9850__DATA);
 //AD9850 AD9850(AD9850__CLK, AD9850__FQUP, AD9850__DATA, 30); //for AD9851
 
 DS1803 ds1803(DS1803_I2C_ADDRESS);
+
 
 LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
@@ -83,7 +87,6 @@ byte currentFreq = 0;
 
 // Function prototypes
 long inputVal (String dialogText,long defaultVal = -1);
-
 
 
 #endif /* MULTIZAP_DEF_H_ */

@@ -1,5 +1,5 @@
 /*
- * bioCalib.h
+ * multiZAP_calib.h
  *
  *  Created on: 24 dec 2017
  *      Author: elektros230
@@ -8,11 +8,12 @@
 #ifndef CALIB_H_
 #define CALIB_H_
 
-#include <Arduino.h>
+//#include <Arduino.h>
 #include <multiZAP_def.h>
-#include <DS1803.h>
-#include <AD9850.h>
+//#include <DS1803.h>
+//#include <AD9850.h>
 #include <bioZAP_func.h>
+
 
 /*************************************************************************************/
 

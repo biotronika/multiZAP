@@ -8,8 +8,8 @@
 #ifndef MULTIZAP_MENU_H_
 #define MULTIZAP_MENU_H_
 
-#include <Arduino.h>
-#include <multiZAP_def.h>
+//#include <Arduino.h>
+//#include <multiZAP_def.h>
 #include <multiZAP_calib.h>
 #include <multiZAP_lcd.h>
 
@@ -229,8 +229,11 @@ int key_7(){
 }
 
 int key_8(){
-// For service and test issues
+
+#ifdef ENCODER_PROTOTYPE
+	// For service and test issues
 	inputVal2();
+#endif
 
 	return 0;
 }

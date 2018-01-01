@@ -1,5 +1,5 @@
 /*
- * functions.h
+ * multiZAP_lcd.h
  *
  *  Created on: 29 gru 2017
  *      Author: elektros230
@@ -8,9 +8,9 @@
 #ifndef MULTIZAP_LCD_H_
 #define MULTIZAP_LCD_H_
 
-#include <Arduino.h>
+//#include <Arduino.h>
 #include <multiZAP_def.h>
-#include <bioZAP_func.h>
+//#include <bioZAP_func.h>
 //#include <LiquidCrystal_I2C.h>
 
 
@@ -239,7 +239,7 @@ int progressBar (byte progress) {
 
 
 
-
+#ifdef ENCODER_PROTOTYPE
 void inputVal2 (){
 //Input dialog with # as end
 //TODO: To remove
@@ -350,7 +350,7 @@ void inputVal2 (){
 
 
 }
-
+#endif /* ENCODER_PROTOTYPE */
 
 
 
