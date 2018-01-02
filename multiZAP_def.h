@@ -23,7 +23,15 @@
 #include <AD9850.h>
 //#include <multiZAP_menu.h>
 
-//#define ENCODER_PROTOTYPE //TODO: To remove - only prototype device
+#ifndef INPUTS_DEF_
+#define INPUTS_DEF_
+#define INPUT_SIGN '>'			//Serial and LCD input sign
+#define INPUT_SIGN_KEYPAD '*'	//Serial sign if command were inserted from keypad
+#define INPUT_BACK_KEYPAD '<'	//Inputed back data from keypad
+#endif
+
+
+#define ENCODER_PROTOTYPE //TODO: To remove - only prototype device
 
 #ifdef ENCODER_PROTOTYPE
 #include <Encoder_Polling.h>

@@ -9,10 +9,11 @@
 #define CALIB_H_
 
 //#include <Arduino.h>
-#include <multiZAP_def.h>
+#include <bioZAP_func.h>
+//#include <multiZAP_def.h>
 //#include <DS1803.h>
 //#include <AD9850.h>
-#include <bioZAP_func.h>
+
 
 
 /*************************************************************************************/

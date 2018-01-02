@@ -41,6 +41,7 @@ AD9850::AD9850(int CLK, int FQUP, int Data, int quartzClock)
     _FQUP = FQUP;
     _Data = Data;
     _quartzClock = quartzClock;
+    _Freq = 0;
 
 
     pinMode(_FQUP, OUTPUT);

@@ -8,10 +8,8 @@
 #ifndef MULTIZAP_LCD_H_
 #define MULTIZAP_LCD_H_
 
-//#include <Arduino.h>
-#include <multiZAP_def.h>
-//#include <bioZAP_func.h>
-//#include <LiquidCrystal_I2C.h>
+//#include <multiZAP_def.h>
+#include <bioZAP_func.h>
 
 
 //Progress bar lcd characters

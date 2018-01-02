@@ -8,10 +8,13 @@
 #ifndef MULTIZAP_MENU_H_
 #define MULTIZAP_MENU_H_
 
+
 //#include <Arduino.h>
 //#include <multiZAP_def.h>
 #include <multiZAP_calib.h>
 #include <multiZAP_lcd.h>
+//#include <bioZAP_func.h>
+
 
 
 int key_A(){
@@ -150,24 +153,6 @@ int key_D(){
 	 *
 	 */
 
-    //wiper0 = inputVal("Set w0_gain",wiper0);
-    //ds1803.set_wiper0(wiper0);
-	//wiper1 = inputVal("Set w1_vmin",wiper1);
-	//ds1803.set_wiper1(wiper1);
-
-
-    //ds1803.set_wiper0( inputVal( "Podaj gain w0" , ds1803.get_wiper0() ) );
-    //ds1803.set_wiper1( inputVal( "Podaj setpoint w1" , ds1803.get_wiper0() ) );
-
-    //EEPROM.write( EEPROM_WIPER0_ADDRESS , ds1803.get_wiper0() );
-    //EEPROM.write( EEPROM_WIPER1_ADDRESS , ds1803.get_wiper1() );
-
-    //TODO: to delete
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("multiZAP++");
-      //Clear LCD
-
 	return 0;
 }
 
@@ -188,7 +173,7 @@ int key_hash(){
 
 int key_0(){
 
-	exe();
+
 
 	return 0;
 }
@@ -244,7 +229,7 @@ int key_9(){
 	int vmin = inputVal("Input vmin", 200);
 	int Freq = inputVal("Input freq", 100000);
 	message("Calibrating...");
-	int wiper0= calib_gain_wiper_ampl(vampl, /*vmin,*/ Freq);
+	int wiper0= calib_gain_wiper_ampl(vampl, Freq);
 	int wiper1= calib_setp_wiper_vmin(vmin);
 	message("w0:");
 	lcd.print(wiper0);

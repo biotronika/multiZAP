@@ -1,6 +1,8 @@
 // multiZAP See: biotronika.pl
 
+#include "Arduino.h"
 #include <multiZAP_menu.h>
+//#include <bioZAP_func.h>
 
 boolean pcConnection = false;
 
