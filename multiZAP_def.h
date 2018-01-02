@@ -4,10 +4,6 @@
  *  Created on: 26 dec 2017
  *      Author: elektros230
  */
-
-
-//#include <Arduino.h>
-
 #ifndef MULTIZAP_DEF_H_
 #define MULTIZAP_DEF_H_
 
@@ -31,7 +27,7 @@
 #endif
 
 
-#define ENCODER_PROTOTYPE //TODO: To remove - only prototype device
+//#define ENCODER_PROTOTYPE //TODO: To remove - only prototype device
 
 #ifdef ENCODER_PROTOTYPE
 #include <Encoder_Polling.h>
