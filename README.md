@@ -15,18 +15,18 @@ EEPROM.h
    | ------'         |                Arduino.h
    | | --------------'                 ^
    | | |                               |
-   def.h<-,                  bioZAP_func.h
-     ^ ^  |                     ^  ^
-     | |  |             --------'  |
-     | |  '-,           |          |
-     | |    bioZAP_func.cpp        |
+   def.h<--------------------bioZAP_func.h
+     ^ ^                           ^   ^
+     | |                           |   |
+     | |                           |  bioZAP_func.cpp
+     | |                           | 
      | |                           |
-     | '----- ----------------------    
-     |      | |                   
-   lcd.h   calib.h  prog.h    
-     ^        ^        ^
-     |        |        |
-     ----- menu.h------
+     | '-----                      |
+     |      |                      |
+   lcd.h   calib.h  prog.h         |
+     ^        ^        ^           |
+     |        |        |           |
+     ----- menu.h-------------------
               ^
               |
          multiZAP.ino
