@@ -10,10 +10,10 @@
 
 
 //#include <Arduino.h>
-//#include <multiZAP_def.h>
-#include <multiZAP_calib.h>
-#include <multiZAP_lcd.h>
-//#include <bioZAP_func.h>
+#include "multiZAP_def.h"
+#include "multiZAP_calib.h"
+#include "multiZAP_lcd.h"
+#include "bioZAP_func.h"
 
 
 
@@ -38,7 +38,7 @@ int key_A(){
 int key_B(){
 
     // Select program
-    byte program = inputVal("Wybierz prog 1-3");
+   byte program = 1; //byte(inputVal("Wybierz prog 1-3"));
 
     lcd.clear();
     lcd.setCursor(0,1);
@@ -130,13 +130,6 @@ int key_B(){
 
 
 int key_C(){
-	if ((byte)EEPROM.read(0)!=255 && (byte)EEPROM.read(0)!=0) {
-      //User program execute
-      executeCmd("exe\n",true);
-      //off();
-    } else {
-    	message("No program in memory!");
-    }
 
 	return 0;
 }
@@ -150,7 +143,7 @@ int key_D(){
 	 * AD985x 0/1 - EEPROM
 	 * default_program - EEPROM
 	 * multiZAP -/+/++ - EEPROM
-	 *
+	 * auto off after script therapy end
 	 */
 
 	return 0;
@@ -172,8 +165,20 @@ int key_hash(){
 }
 
 int key_0(){
+	if ((byte)EEPROM.read(0)!=255 && (byte)EEPROM.read(0)!=0) {
+		//User program execute
 
+		if ( !( (wiper0 = calib_gain_wiper_ampl(400, 100000)) > 0  &&
+				(wiper1 = calib_setp_wiper_vmin(200)) > 0                  ) ) {
 
+			message("Error calibration");
+		}
+		message("User program ...");
+		executeCmd("exe\n",true);
+		off();
+    } else {
+    	message("No program in memory!");
+    }
 
 	return 0;
 }
@@ -227,18 +232,18 @@ int key_9(){
 // For service and test issues
 	int vampl = inputVal("Input vampl", 400);
 	int vmin = inputVal("Input vmin", 200);
-	int Freq = inputVal("Input freq", 100000);
+	Freq = inputVal("Input freq", 100000);
 	message("Calibrating...");
 	int wiper0= calib_gain_wiper_ampl(vampl, Freq);
 	int wiper1= calib_setp_wiper_vmin(vmin);
+	lcd.clear();
+	lcd.print(Freq);
 	message("w0:");
 	lcd.print(wiper0);
 	lcd.print("  w1:");
 	lcd.print(wiper1);
 	return 0;
 }
-
-
 
 
 

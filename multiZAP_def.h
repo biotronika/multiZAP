@@ -15,8 +15,8 @@
 #include <Keypad.h>
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
-#include <DS1803.h>
-#include <AD9850.h>
+#include "DS1803.h"
+#include "AD9850.h"
 //#include <multiZAP_menu.h>
 
 #ifndef INPUTS_DEF_
