@@ -12,4 +12,18 @@ To compile code and upload using Arduino IDE:
 
 See: https://biotronika.pl
 
+Soft not working correctly yet!!!
+
+Keypad manual functions:
+[#] - Turn on - press # and hold 3 seconds.
+[*] - Turn off  - and pres [#] (yes) or [*]
+[A] - Start generate frequency 
+	1. Set frequency e.g. 10000 = 100.00Hz or use [D] as decimal separator [1][0][0][D] and press [#]
+	2. Set time in seconds and press [#]
+[D] - Calibrate and save in EEPROM memory
+	1. Set vampl - pk-pk apmplitude of sine signal e.g. 400 = 4.00V and press [#] (1.00 - 8.00V)
+	2. Set vmin - minimum extremum of sine signal e.g. 100 = 1.00V and press [#] (0.50 - 4.00)
+	3. Set calibration frequency or press [#]
+[0] - Start EEPROM therapy script
+
 Enjoy :)
