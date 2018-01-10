@@ -19,7 +19,7 @@ class AD9850{
       AD9850(int CLK, int FQUP, int Data, int quartzClock=125 );
       void set_frequency(double Freq);
       double AD9850::get_frequency();
-      void operator<<(double Freq);
+      //void operator<<(double Freq);
       void powerDown(void);
       //void reset(int _RST);
 
@@ -145,8 +145,8 @@ void AD9850::clock_FQUP()
 }*/
 
 
-void AD9850::operator<<(double frequency)
+/*void AD9850::operator<<(double frequency)
 {
   set_frequency(frequency);
-}
+}*/
 
