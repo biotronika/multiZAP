@@ -19,7 +19,7 @@ See: [https://biotronika.pl]
 **Keypad manual functions:**
  
 ```
-[#] - Turn on - press [#] and hold 3 seconds
+[#] - Turn on - press [#] and hold 3 seconds or enter key.
 
 [*] - Escape or turn-off in main menu.
 
@@ -33,6 +33,17 @@ See: [https://biotronika.pl]
 	3. Set calibration frequency or simply press [#]
 	
 [0] - Start EEPROM therapy script
+
+[1]-[9] TODO: - Start standard program in flash memory
+
+[B] - TODO: Settings:
+	 * auto_turn_off_time - EEPROM
+	 * AD985x 0/1 - EEPROM
+	 * default_program - EEPROM
+	 * multiZAP -/+/++ - EEPROM
+	 * auto off after script therapy end
+	 
+[C] - TODO: multiZAP+ functions - Select and astart of SD card script therapy, express-scan etc.
 
 ```
 
