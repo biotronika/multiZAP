@@ -12,7 +12,7 @@ To compile code and upload using Arduino IDE:
 
 See: [https://biotronika.pl]
 
-Soft not working correctly yet!!!
+**Software not working correctly yet!!!**
 
 
 **Keypad manual functions:**
