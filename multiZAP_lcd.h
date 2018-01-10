@@ -16,6 +16,9 @@ long inputVal (String dialogText, long defaultVal = -1, byte defaultDigits = 8);
 void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec);
 
 
+unsigned long _lastProgressBarShowed = 0;
+
+
 void lcd_init(){
 	//Initialize LCD display
 	lcd.init();
@@ -38,7 +41,6 @@ void lcd_hello(boolean pcConnection){
 	if (pcConnection){
 		lcd.print("  ");
 		lcd.print("[PC]");
-
 	}
 
 }
@@ -132,40 +134,47 @@ long inputVal (String dialogText, long defaultVal, byte defaultDigits){
 void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec) {
 //Showing progress with left time in formats: 999m (greater then 10min), 120s (less then 10min)
 
-	// Show progress bar in LCD_PBAR_LINE line - first is 0
-    lcd.setCursor(0,LCD_PBAR_LINE);
+	//Show ones a second
+	if ( millis() > _lastProgressBarShowed + 1000 ) {
+		_lastProgressBarShowed = millis();
 
+		// Show progress bar in LCD_PBAR_LINE line - first is 0
+		lcd.setCursor( 0, LCD_PBAR_LINE );
 
-    //TODO: left time formats
-    //lcd.print(percent);
-    //lcd.print("%  ");
+		if (leftTimeSec>600){
 
-    if (leftTimeSec>600){
+			lcd.print( int( leftTimeSec/60 ) );
+			lcd.print("m   ");
+		} else if (leftTimeSec<60) {
 
-        lcd.print( int(leftTimeSec/60) );
-        lcd.print("m");
-    } else {
+			lcd.print( leftTimeSec );
+			lcd.print("s   ");
+		} else {
+			//Minutes section
+			lcd.print( int( leftTimeSec/60 ) );
+			lcd.print(':');
 
-        lcd.print(leftTimeSec);
-        lcd.print("s");
-    }
+			//Seconds section
+			if (leftTimeSec % 60 <10) lcd.print('0');
+			lcd.print(leftTimeSec % 60);
+		}
 
-    if (totalTimeSec!=0) {
+		if (totalTimeSec!=0) {
 
-    	byte percent = 100 * leftTimeSec / totalTimeSec;
+			byte percent = 5 + 100 * leftTimeSec / totalTimeSec;
 
-    	lcd.setCursor(4,LCD_PBAR_LINE);
-		for (int i=0; i<(percent/10);i++) lcd.write(5);
-		//lcd.write(map( progress%10,0,9,0,5));
-		//map( progress%10,0,9,0,5)
-		lcd.print("          ");
+			lcd.setCursor(5,LCD_PBAR_LINE);
+			for (int i=0; i<(percent/10);i++) lcd.write(255); //lcd.write('#');
 
-		lcd.setCursor(4,LCD_PBAR_LINE);
-		lcd.write('[');
-		lcd.setCursor(15,LCD_PBAR_LINE);
-		lcd.write(']');
+			lcd.print("          ");
 
-    }
+			lcd.setCursor(4,LCD_PBAR_LINE);
+			lcd.write('[');
+
+			lcd.setCursor(15,LCD_PBAR_LINE);
+			lcd.write(']');
+		}
+	}
 
 }
 

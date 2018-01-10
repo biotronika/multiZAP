@@ -49,7 +49,7 @@
 #define SCAN_STEPS 100        	// For scan function purpose - default steps
 #define XON 17  //0x11			//TODO: to remove
 #define XOFF 19 //0x13          //TODO: to remove
-#define MAX_LABELS 8          	// Number of labels in code
+#define MAX_LABELS 8          	// Number of labels in script therapy
 
 #ifndef INPUTS_DEF_
 #define INPUTS_DEF_
@@ -87,6 +87,12 @@ byte coilState = LOW;
 #ifdef MULTIZAP
 byte wiper0 = 0;
 byte wiper1 = 0;
+
+unsigned long freqStartMillis = 0;
+unsigned long freqStopMillis = 0;
+unsigned long programStartMillis = 0;
+unsigned long programStopMillis = 0;
+
 #endif
 
 //TODO: hehaka
@@ -111,7 +117,7 @@ unsigned long pauseTime =0;
 volatile boolean pause = false; // true = pause on
 unsigned long pressTime = 0;    // Time of pressing the button
 unsigned long startInterval;    // For unused timeout off.
-int programNo = 1;              // TODO: to reconstruct in free-PEMF deprecated: 0 = PC connection, 1= first program etc.
+int programNo = -1;              // TODO: to reconstruct in free-PEMF deprecated: 0 = PC connection, 1= first program etc.
 								// New: 0 = default program in memory, 1-9 or 1-3 = standard programs , -1 = PC
 byte hr = 0;                    // User pulse from hrmPin
 
@@ -454,81 +460,42 @@ void scan(unsigned long Freq, unsigned long period){
 }
 
 #ifdef MULTIZAP
+void freq(unsigned long Freq, unsigned int period){
+/*Start generate frequency
+ *  Freq - frequency e.g. 1000 = 10.00Hz
+ *  period - time in seconds
+ */
+
+	//For scan() function propose
+	lastFreq =constrain( Freq, MIN_FREQ_OUT, MAX_FREQ_OUT);
+
+	//start
+	wipersON();
+	ad9850.set_frequency(Freq);
+
+	freqStartMillis = millis();
+	freqStopMillis = freqStartMillis + long(period) * 1000;
+
+}
+#endif
+
+#ifdef FREE_PEMF
 void freq(unsigned long Freq, unsigned int period) {
 //Rectangle signal generate, Freq=783 for 7.83Hz, period in seconds
 
-  lastFreq =constrain( Freq, MIN_FREQ_OUT, MAX_FREQ_OUT) ; //For scan() function propose
+	//For scan() function propose
+	lastFreq =constrain( Freq, MIN_FREQ_OUT, MAX_FREQ_OUT) ;
 
-  unsigned long interval = 50000/constrain(Freq, MIN_FREQ_OUT, MAX_FREQ_OUT);
-  unsigned long timeUp = millis() + (period*1000);
-  unsigned long serialStartPeriod = millis();
-  unsigned long startInterval = millis();
-  unsigned long pausePressed;
+	unsigned long interval = 50000/constrain(Freq, MIN_FREQ_OUT, MAX_FREQ_OUT);
+	unsigned long timeUp = millis() + (period*1000);
+	unsigned long serialStartPeriod = millis();
+	unsigned long startInterval = millis();
+	unsigned long pausePressed;
 
   boolean pause = false;
 
-  //start
-  wipersON();
-  ad9850.set_frequency(Freq);
 
-  while(millis()< timeUp) {
-      //time loop
-
-      if ((millis() - startInterval) >= interval) {
-
-        //Save start time interval
-        startInterval = millis();
-
-      }
-
-      //progressBar(300, 100/*int((timeUp-millis())/1000) */);
-      //progressBar( period, period);
-      //message("freq "+ Freq);
-
-      lcd.setCursor(0, 0);
-  	  lcd.print( "freq "+ Freq);
-
-      checkBattLevel(); //If too low then off
-
-      //TODO Serial break command - mark @
-      //TODO Keyboard break
-
-      if (pause) {
-        //Pause - button pressed
-
-          pausePressed = millis();
-          beep(200);
-          wipersOFF();
-
-          while (pause){
-            //wait pauseTimeOut or button pressed
-            if (millis()> pausePressed + pauseTimeOut) {
-               beep(500);
-               off();
-            }
-          }
-          beep(200);
-
-          //Correct working time
-          timeUp += millis()-pausePressed;
-          startInterval += millis()-pausePressed;
-
-          //Continue
-          wipersON();
-          ad9850.set_frequency(Freq);
-      }
-
-      //count each second
-      if (millis()-serialStartPeriod >= 1000) { //one second
-        //Serial.print('.');
-
-        serialStartPeriod = millis();
-
-        lcd.setCursor(0, 0);
-    	lcd.print( "freq "+ period);
-      }
-  }
-  wipersOFF();
+//.......
 
 }
 #endif
@@ -553,8 +520,9 @@ void off() {
 	ad9850.powerDown();
 
 	// Turn electrodes off by setting both pots to 0
-	ds1803.set_wiper0(0);
-	ds1803.set_wiper1(0);
+	wipersOFF();
+	//ds1803.set_wiper0(0);
+	//ds1803.set_wiper1(0);
 
 	// Turn power off if not USB power
 	digitalWrite(powerPin, LOW);

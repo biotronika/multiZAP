@@ -17,22 +17,27 @@
 
 
 
-int key_A(){
-    Freq = inputVal("Input frequency", 783);
-    if (Freq<=0) {
-    	return 0;
-    }
-    int period = inputVal("Input period", 10);
-    message(String(Freq));
-    wipersON();
-    Serial.print("freq ");
-    Serial.print(Freq);
-    Serial.print(" ");
-    Serial.println(period);
-    freq(Freq, period);
-    wipersOFF();
 
-	return 0;
+void key_A(){
+    Freq = inputVal("Input frequency", 100000);
+    if (Freq>0) {
+
+    	unsigned int period = inputVal("Input period", 10);
+    	//message(String(period));
+
+    	//Serial.print("freq ");
+    	//Serial.print(Freq);
+    	//Serial.print(" ");
+    	//Serial.println(period);
+
+    	//Start freq
+    	freq(Freq, period);
+    	//message(String(freqStopMillis-freqStartMillis));
+    	//delay(3000);
+
+
+    }
+
 }
 
 int key_B(){
@@ -242,6 +247,76 @@ int key_9(){
 	return 0;
 }
 
+void keyPressed(char key){
 
+	switch (key){
+
+		  case 'A':
+			  key_A();
+			  key=NO_KEY;
+			  break;
+
+		  case 'B':
+			  key_B();
+			  break;
+
+		  case 'C':
+			  key_C();
+			  break;
+
+		  case 'D':
+			key_D();
+			break;
+
+		  case '*':
+			key_asterix();
+			break;
+
+		  case '#':
+			key_hash();
+			break;
+
+		  case '0':
+			key_0();
+			break;
+
+		  case '1':
+			key_1();
+			break;
+
+		  case '2':
+			key_2();
+			break;
+
+		  case '3':
+			key_3();
+			break;
+
+		  case '4':
+			key_4();
+			break;
+
+		  case '5':
+			key_5();
+			break;
+
+		  case '6':
+			key_6();
+			break;
+
+		  case '7':
+			key_7();
+			break;
+
+		  case '8':
+			key_8();
+			break;
+
+		  case '9':
+			key_9();
+			break;
+
+	}
+}
 
 #endif /* MULTIZAP_MENU_H_ */
