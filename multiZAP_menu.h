@@ -36,7 +36,21 @@ int key_A(){
 }
 
 int key_B(){
+	/*TODO: Configuration parameters
+	 * vmin - EEPROM
+	 * vampl - EEPROM
+	 * auto_turn_off_time - EEPROM
+	 * AD985x 0/1 - EEPROM
+	 * default_program - EEPROM
+	 * multiZAP -/+/++ - EEPROM
+	 * auto off after script therapy end
+	 */
 
+	return 0;
+}
+
+
+int key_C(){
     // Select program
    byte program = 1; //byte(inputVal("Wybierz prog 1-3"));
 
@@ -93,64 +107,39 @@ int key_B(){
           digitalWrite(powerPin, LOW);
 
     }
-
-    if (program==9) {
-        //ds1803.set_wiper0(wiper0);
-        //ds1803.set_wiper1(wiper1);
-      	//Start with default parameters
-      	if (ds1803.get_wiper0()==0){
-      		calib_gain_wiper_ampl(400, 100);
-      	}
-
-
-        digitalWrite(buzerPin, HIGH);
-        delay(200);
-        digitalWrite(buzerPin, LOW);
-        currentFreq++;
-        if (currentFreq > 4)  currentFreq = 0;
-        lcd.setCursor(0,1);
-        lcd.print("                ");
-        lcd.setCursor(0,1);
-        lcd.print(freqs[currentFreq]);
-        //ad9850 << freqs[currentFreq];
-        calib_gain_wiper_ampl(400, /*100,*/ freqs[currentFreq]);
-        calib_setp_wiper_vmin(100);
-
-
-
-    }
-
-
-
-
-
-
-	return 0;
-}
-
-
-int key_C(){
-
 	return 0;
 }
 
 
 int key_D(){
-	/*TODO: Configuration parameters
-	 * vmin - EEPROM
-	 * vampl - EEPROM
-	 * auto_turn_off_time - EEPROM
-	 * AD985x 0/1 - EEPROM
-	 * default_program - EEPROM
-	 * multiZAP -/+/++ - EEPROM
-	 * auto off after script therapy end
-	 */
+// Setting new vmin and vampl and saving in EEPROM
+
+	get_v_EEPROM();
+	int vampl = inputVal("Input vampl", last_v_ampl,3);
+	int vmin = inputVal("Input vmin", last_v_min, 3);
+	Freq = inputVal("Input freq", 100000);
+	message("Calibrating...");
+	byte wiper0 = calib_gain_wiper_ampl(vampl, Freq);
+	byte wiper1 = calib_setp_wiper_vmin(vmin);
+	if ( wiper0 + wiper1 ){
+		//Save last vampl and vmin
+		set_v_EEPROM();
+		message("Saved in memory",0);
+	} else {
+		message("Wiper's error!",0);
+	}
+	message("w0:");
+	lcd.print(wiper0);
+	lcd.print("  w1:");
+	lcd.print(wiper1);
+	delay(3000);
 
 	return 0;
 }
 
 int key_asterix(){
 //Manually turn device off
+	// ret=inputOption("Turn off?","yes","no","maybe");
 	int ret=inputVal("Off?  1-yes 0-no", 1);
 	if (ret) digitalWrite(powerPin, LOW);
 
@@ -230,18 +219,26 @@ int key_8(){
 
 int key_9(){
 // For service and test issues
-	int vampl = inputVal("Input vampl", 400);
-	int vmin = inputVal("Input vmin", 200);
+	int vampl = inputVal("Input vampl", last_v_ampl,3);
+	int vmin = inputVal("Input vmin", last_v_min, 3);
 	Freq = inputVal("Input freq", 100000);
+
+	message("va:");
+	lcd.print(vampl);
+	lcd.print("  vm:");
+	lcd.print(vmin);
+	delay(3000);
+
 	message("Calibrating...");
-	int wiper0= calib_gain_wiper_ampl(vampl, Freq);
-	int wiper1= calib_setp_wiper_vmin(vmin);
+	byte wiper0= calib_gain_wiper_ampl(vampl, Freq);
+	byte wiper1= calib_setp_wiper_vmin(vmin);
 	lcd.clear();
 	lcd.print(Freq);
 	message("w0:");
 	lcd.print(wiper0);
 	lcd.print("  w1:");
 	lcd.print(wiper1);
+	delay(3000);
 	return 0;
 }
 

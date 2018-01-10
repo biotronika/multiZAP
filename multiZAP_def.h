@@ -26,6 +26,8 @@
 #define INPUT_BACK_KEYPAD '<'	//Inputed back data from keypad
 #endif
 
+#define LCD_MESSAGE_LINE 1		//Default lcd line for bioZAP messages
+
 
 //#define ENCODER_PROTOTYPE //TODO: To remove - only prototype device
 
@@ -47,8 +49,7 @@
 
 #define outVoltagePin PIN_A6
 
-#define EEPROM_WIPER0_ADDRESS 1022
-#define EEPROM_WIPER1_ADDRESS 1023
+
 
 #define REF_VOLTAGE 15.6383   //This voltage equals 1023 on analog input
 #define ONE_GRADE 0.015287    //REF_VOLTAGE/1023 --One bit //0.015635
@@ -78,19 +79,11 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 char key;
 
-int col =0;
+/*int col =0;
 int pos = 0;
-int val;
+int val;*/
 long Freq = 1000000; //100kHz
 
-//boolean startNormaly = false;
-
-//              1kHz    100kHz    500kHz    900kHz    10Hz
-long freqs[] = {100000, 10000000, 50000000, 90000000, 1000};
-byte currentFreq = 0;
-
-// Function prototypes
-long inputVal (String dialogText,long defaultVal = -1);
 
 
 #endif /* MULTIZAP_DEF_H_ */

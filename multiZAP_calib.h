@@ -20,15 +20,46 @@
 /*************************************************************************************/
 
 //Function prototypes
-byte calib_gain_wiper_ampl(int v_ampl=400, /*int v_min=200,*/ double freq=100000);
+byte calib_gain_wiper_ampl(int v_ampl=400,  long freq=100000);
 byte calib_setp_wiper_vmin(int v_min);
 byte calib_flat_wiper_vmin(int v_min);
+int last_v_ampl = 0;
+int last_v_min = 0;
 //byte wiper0 = 0;
 //byte wiper1 = 0;
 
 /*************************************************************************************/
 
-int _last_v_ampl = 0;
+//int _last_v_ampl = 0;
+
+void get_v_EEPROM(){
+	EEPROM.get( EEPROM_VAMPL_ADDRESS, last_v_ampl );
+	EEPROM.get( EEPROM_VMIN_ADDRESS, last_v_min );
+
+/*
+	last_v_ampl = EEPROM.read( EEPROM_VAMPL_ADDRESS ) << 8;
+	last_v_ampl += EEPROM.read( EEPROM_VAMPL_ADDRESS + 1 );
+
+	last_v_min = EEPROM.read( EEPROM_VMIN_ADDRESS ) << 8;
+	last_v_min += EEPROM.read( EEPROM_VMIN_ADDRESS + 1 );
+*/
+
+	//For new devices were EEPROM memory is not set properly
+	last_v_ampl= constrain( last_v_ampl, 100, 800 );
+	last_v_min = constrain( last_v_min, 50, 400 );
+}
+
+void set_v_EEPROM(){
+	EEPROM.put( EEPROM_VAMPL_ADDRESS, last_v_ampl );
+	EEPROM.put( EEPROM_VMIN_ADDRESS, last_v_min );
+/*
+	EEPROM.write( EEPROM_VAMPL_ADDRESS,      last_v_ampl >> 8 );
+	EEPROM.write( EEPROM_VAMPL_ADDRESS + 1,  last_v_ampl  );
+
+	EEPROM.write( EEPROM_VMIN_ADDRESS,      last_v_min >> 8 );
+	EEPROM.write( EEPROM_VMIN_ADDRESS + 1,  last_v_min  );
+*/
+}
 
 
 int _getVampl(){
@@ -143,7 +174,7 @@ int _getVMin(){
 }
 
 
-byte calib_gain_wiper_ampl(int v_ampl, /*int v_min,*/ double freq){
+byte calib_gain_wiper_ampl(int v_ampl,  long freq){
 	// Find v_min level suitable to begin calibration
 	// Work with proper gain and frequency set
 
@@ -153,11 +184,9 @@ byte calib_gain_wiper_ampl(int v_ampl, /*int v_min,*/ double freq){
 	byte i = 128; //ds1803.get_wiper0();
 	//if (i>i_max) i_max=i;
 
-	//wiper0 = 0;
-	//wiper1 = 0;
-	_last_v_ampl = 0;
 
 	if (v_ampl<=800 && v_ampl>=100){
+	last_v_ampl = v_ampl;
 
 		if (v_ampl>=600){
 			//Calibrate v_ampl with v_min=100 - 1.0[V]
@@ -190,26 +219,6 @@ byte calib_gain_wiper_ampl(int v_ampl, /*int v_min,*/ double freq){
 
 		} while ( abs(i_max-i_min) > 1 ); //1 or 0 are good enough
 
-		//DONE: remove linearity to calib_setp_wiper_vmin
-//		byte i_min=calib_setp_wiper_vmin(v_min);
-/*
-		if ( i_min > 0){
-
-			//Linearity v_min
-			if (v_min<=100 && v_ampl<=200) {
-				ds1803.set_wiper1(i_min+5);
-				i=i_min+5;
-			}
-			//TODO: remove form calib.h
-			wiper0 = ds1803.get_wiper0();
-			wiper1 = ds1803.get_wiper1();
-
-			return i;
-		} else {
-			return 0;
-		}
-*/
-		_last_v_ampl = v_ampl;
 		return i;
 	} else {
 		return 0;
@@ -231,6 +240,8 @@ byte calib_setp_wiper_vmin(int v_min){
 
 	if ( v_min<=400 && v_min>=50 ){
 
+		last_v_min = v_min;
+
 		do {
 
 			//Check
@@ -250,7 +261,7 @@ byte calib_setp_wiper_vmin(int v_min){
 		if ( i_min > 0){
 
 			//Linearity v_min
-			if ( v_min<=100 && _last_v_ampl<=200 ) {
+			if ( v_min<=100 && last_v_ampl<=200 ) {
 				ds1803.set_wiper1(i_min+5);
 				i=i_min+5;
 			}
@@ -276,16 +287,18 @@ byte calib_flat_wiper_vmin(int v_min){
 
 	ds1803.set_wiper0(0); // Gain to 0
 	ad9850.powerDown();   // Generator to off
-	uint16_t aim = v_min/(ONE_GRADE*100);  //Pin outVoltagePin needed level
+	unsigned int aim = v_min/(ONE_GRADE*100);  //Pin outVoltagePin needed level
 
 	//Searching point range
 	byte i_min = 0;
 	byte i_max = 100;
 	byte i = 50;
 
+	//last_v_min = v_min;
+
 	//Averaging algorithm
-	uint16_t x=0;
-	uint8_t probes=10;
+	unsigned int x=0;
+	byte probes=10;
 
 	ds1803.set_wiper1(i);
 
@@ -293,7 +306,7 @@ byte calib_flat_wiper_vmin(int v_min){
 
 		//Averaging
 		x=0;
-		for (int j=0; j<probes; j++){
+		for (byte j=0; j<probes; j++){
 			x+=analogRead(outVoltagePin)/probes;
 		}
 

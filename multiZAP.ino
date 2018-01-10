@@ -55,12 +55,14 @@ void setup (){
 	//Count to off
 	startInterval=millis();
 
+	//Get last_v_ampl and last_v_min from EEPROM
+	get_v_EEPROM();
+
 	if (!pcConnection) {
 		//Calibration
 		message("Calibrating...");
-		//                                      4.0V 1.0V 1kHz
-		if ( !( (wiper0 = calib_gain_wiper_ampl(400, 100000)) > 0  &&
-				(wiper1 = calib_setp_wiper_vmin(100)) > 0                  ) ) {
+		if ( !( (wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000)) > 0  &&
+				(wiper1 = calib_setp_wiper_vmin(last_v_min)) > 0                  ) ) {
 
 			message("Error calibration");
 			do{

@@ -22,6 +22,7 @@
 #include "multiZAP_def.h"
 #include "DS1803.h"
 #include "AD9850.h"
+//#include "multiZAP_lcd.h"
 #endif
 
 
@@ -29,17 +30,20 @@
 //BIOzap
 #define WELCOME_SCR "Free BIOzap interpreter welcome! See https://biotronika.pl"
 #define PROGRAM_SIZE 1000     	// Maximum program size
-#define PROGRAM_BUFFER 128    	// SRAM buffer size, used for script loading  TODO lack of memory
+#define PROGRAM_BUFFER 1    	// SRAM buffer size, used for script loading  TODO lack of memory
 #define MAX_CMD_PARAMS 3      	// Count of command params
 #define LCD_SCREEN_LINE 1     	// LCD user line number, -1 = no lcd, 0 = first, 1= second
-#define MIN_FREQ_OUT 1        	//  0.01 Hz
+#define LCD_PBAR_LINE 0			// LCD progress bar line
+#define MIN_FREQ_OUT 1        	// 0.01 Hz
 
 #ifdef FREE_PEMF
-#define MAX_FREQ_OUT 5000     	// 50HzHz
+#define MAX_FREQ_OUT 5000     					// 50Hz
 #endif
 
 #ifdef MULTIZAP
-#define MAX_FREQ_OUT 90000000 	// 900kHz
+#define MAX_FREQ_OUT 90000000 					// 900kHz
+#define EEPROM_VAMPL_ADDRESS 1019				// v_ampl - multiZAP
+#define EEPROM_VMIN_ADDRESS 1021				// v_min - multiZAP
 #endif
 
 #define SCAN_STEPS 100        	// For scan function purpose - default steps
@@ -58,6 +62,7 @@
 #define batPin PIN_A7                           // Analog-in battery level
 #define BATTERY_VOLTAGE_RATIO 0.153             // Include divider 10k/4,7k resistors. 5V*(10k+4,7k)/4,7k = 0,0153 (x10)
 #define EEPROM_BATTERY_CALIBRATION_ADDRESS 1023 // Memory address of battery correction factor - 100 means RATIO x 1,00
+
 #define MIN_BATTERY_LEVEL 90                    // 90 means 9.0 V  (x10), less then that turn off
 #define USB_POWER_SUPPLY_LEVEL 65               // Maximum USB voltage level means 6.5V
 
@@ -86,10 +91,12 @@ byte wiper1 = 0;
 
 //TODO: hehaka
 //Labels & jumps
+/*
 String labelName[MAX_LABELS];           // TODO: Labels names e.g. :MY_LABEL
 unsigned int labelPointer[MAX_LABELS];  // TODO: Next line of label
 unsigned int labelLoops[MAX_LABELS];    // TODO: Number of left jump loops
 byte labelsPointer = 0;                 // TODO: Pointer of end label table
+*/
 
 
 //Serial buffer
@@ -121,7 +128,7 @@ void checkBattLevel();
 
 void off();
 void beep( unsigned int period);
-void freq(unsigned long Freq, unsigned long period);
+void freq(unsigned long Freq, unsigned int period);
 void rec(unsigned int Freq, unsigned long period);  //deprecated
  int rec();
  int sin();
@@ -447,7 +454,7 @@ void scan(unsigned long Freq, unsigned long period){
 }
 
 #ifdef MULTIZAP
-void freq(unsigned long Freq, unsigned long period) {
+void freq(unsigned long Freq, unsigned int period) {
 //Rectangle signal generate, Freq=783 for 7.83Hz, period in seconds
 
   lastFreq =constrain( Freq, MIN_FREQ_OUT, MAX_FREQ_OUT) ; //For scan() function propose
@@ -473,6 +480,13 @@ void freq(unsigned long Freq, unsigned long period) {
         startInterval = millis();
 
       }
+
+      //progressBar(300, 100/*int((timeUp-millis())/1000) */);
+      //progressBar( period, period);
+      //message("freq "+ Freq);
+
+      lcd.setCursor(0, 0);
+  	  lcd.print( "freq "+ Freq);
 
       checkBattLevel(); //If too low then off
 
@@ -506,8 +520,12 @@ void freq(unsigned long Freq, unsigned long period) {
 
       //count each second
       if (millis()-serialStartPeriod >= 1000) { //one second
-        Serial.print('.');
+        //Serial.print('.');
+
         serialStartPeriod = millis();
+
+        lcd.setCursor(0, 0);
+    	lcd.print( "freq "+ period);
       }
   }
   wipersOFF();

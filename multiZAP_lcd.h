@@ -11,102 +11,15 @@
 
 #include "bioZAP_func.h"
 
-
-//Progress bar lcd characters
-byte bar0[8] = {
-  0x0,
-  0x0,
-  0x0,
-  0x0,
-  0x0,
-  0x0,
-  0x0,
-  0x0};
-
-byte bar1[8] = {
-  0x10,
-  0x10,
-  0x10,
-  0x10,
-  0x10,
-  0x10,
-  0x10,
-  0x10};
-
-byte bar2[8] = {
-  0x18,
-  0x18,
-  0x18,
-  0x18,
-  0x18,
-  0x18,
-  0x18,
-  0x18};
-
-byte bar3[8] = {
-  0x1C,
-  0x1C,
-  0x1C,
-  0x1C,
-  0x1C,
-  0x1C,
-  0x1C,
-  0x1C};
-
-byte bar4[8] = {
-  0x1E,
-  0x1E,
-  0x1E,
-  0x1E,
-  0x1E,
-  0x1E,
-  0x1E,
-  0x1E};
-
-byte bar5[8] = {
-  0x1F,
-  0x1F,
-  0x1F,
-  0x1F,
-  0x1F,
-  0x1F,
-  0x1F,
-  0x1F};
-
-byte char6[8] = {
-  B000000,
-  B001100,
-  B010010,
-  B111111,
-  B000000,
-  B000000,
-  B000000,
-  B000000};
-
-byte char7[8] = {
-  B000000,
-  B000000,
-  B000000,
-  B111111,
-  B010010,
-  B001100,
-  B000000,
-  B000000};
-
+void message (String messageText, byte row = LCD_SCREEN_LINE);
+long inputVal (String dialogText, long defaultVal = -1, byte defaultDigits = 8);
+void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec);
 
 
 void lcd_init(){
 	//Initialize LCD display
 	lcd.init();
 	lcd.backlight();
-	lcd.createChar(0, bar0);
-	lcd.createChar(1, bar1);
-	lcd.createChar(2, bar2);
-	lcd.createChar(3, bar3);
-	lcd.createChar(4, bar4);
-	lcd.createChar(5, bar5);
-	lcd.createChar(6, char6);
-	lcd.createChar(7, char7);
 }
 
 
@@ -130,25 +43,24 @@ void lcd_hello(boolean pcConnection){
 
 }
 
-void message (String messageText) {
+void message (String messageText, byte row ) {
 // Message in #2 line
 	//lcd.clear();
-	lcd.setCursor(0,1);
+	lcd.setCursor(0, row);
 	lcd.print("                ");
-	lcd.setCursor(0,1);
-	lcd.print(messageText);
+	lcd.setCursor(0, row);
+	lcd.print( messageText );
 }
 
-long inputVal (String dialogText, long defaultVal){
+long inputVal (String dialogText, long defaultVal, byte defaultDigits){
 /* Input dialog with [#] as end
  * Return 0 - 2,147,483,647
  * Escape [*] return -1
  * Allows [D] as decimal separator. Result is multiple x100 times
  */
 
-	//boolean isEnd = false;
 	String in="0";
-    int col = 0;
+    byte col = 0;
 
     Serial.print(INPUT_SIGN_KEYPAD);
 	Serial.print(dialogText);
@@ -165,7 +77,6 @@ long inputVal (String dialogText, long defaultVal){
       lcd.print(defaultVal);
     }
     lcd.setCursor(0,1);
-
 
     do {
     	char key = keypad.getKey();
@@ -187,52 +98,75 @@ long inputVal (String dialogText, long defaultVal){
                lcd.print(key);
                col++;
 
-               //TODO: Do support for dot character and x100 multiplier
                in=in+key;
+               if (col >= defaultDigits) {
+            	   delay(70);
+            	   break;
+               }
     		}
-
     } while (1);
-
 
     if (col==0 && defaultVal != -1) {
 
     	Serial.print(INPUT_BACK_KEYPAD);
     	Serial.println(defaultVal);
-      return defaultVal;
+
+    	return defaultVal;
+
     } else {
 
     	//Decimal character support
     	if (in.indexOf('.') != -1) {
     		in = in.substring( 0, in.indexOf('.') ) +
     			  ( in.substring( in.indexOf('.')+1 ) + "00" ).substring(0,2);
-    		//message(in);
-    		//Serial.println(in);
     	}
 
     	Serial.print(INPUT_BACK_KEYPAD);
     	Serial.println(in.toInt());
+
     	return in.toInt();
 
+    }
+}
+
+void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec) {
+//Showing progress with left time in formats: 999m (greater then 10min), 120s (less then 10min)
+
+	// Show progress bar in LCD_PBAR_LINE line - first is 0
+    lcd.setCursor(0,LCD_PBAR_LINE);
+
+
+    //TODO: left time formats
+    //lcd.print(percent);
+    //lcd.print("%  ");
+
+    if (leftTimeSec>600){
+
+        lcd.print( int(leftTimeSec/60) );
+        lcd.print("m");
+    } else {
+
+        lcd.print(leftTimeSec);
+        lcd.print("s");
+    }
+
+    if (totalTimeSec!=0) {
+
+    	byte percent = 100 * leftTimeSec / totalTimeSec;
+
+    	lcd.setCursor(4,LCD_PBAR_LINE);
+		for (int i=0; i<(percent/10);i++) lcd.write(5);
+		//lcd.write(map( progress%10,0,9,0,5));
+		//map( progress%10,0,9,0,5)
+		lcd.print("          ");
+
+		lcd.setCursor(4,LCD_PBAR_LINE);
+		lcd.write('[');
+		lcd.setCursor(15,LCD_PBAR_LINE);
+		lcd.write(']');
 
     }
 
-}
-
-int progressBar (byte progress) {
-  // Show progress bar in #2 line
-    lcd.setCursor(0,1);
-    //lcd.print(" ");
-    lcd.print(progress);
-    lcd.print("%  ");
-    lcd.setCursor(4,1);
-    for (int i=0; i<(progress/10);i++) lcd.write(5);
-    lcd.write(map( progress%10,0,9,0,5));
-    lcd.print("          ");
-    lcd.setCursor(14,1);
-    lcd.write(6);
-    lcd.setCursor(15,1);
-    lcd.write(7);
-    return 0;
 }
 
 
