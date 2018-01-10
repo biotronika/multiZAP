@@ -11,3 +11,5 @@ To compile code and upload using Arduino IDE:
 9. Compile and upload. Sketch->Upload. Wait until on down side of Arduino IDE window see Done uploading.
 
 See: https://biotronika.pl
+
+Enjoy :)
