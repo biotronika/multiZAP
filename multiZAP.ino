@@ -4,7 +4,7 @@
 #include "multiZAP_menu.h"
 #include "bioZAP_func.h"
 
-boolean pcConnection = false;
+
 
 
 void setup (){
@@ -34,9 +34,6 @@ void setup (){
 		lcd_init();
 	}
 
-#ifdef ENCODER_PROTOTYPE
-	encoder_begin(encoderPin_A,encoderPin_B);
-#endif
 
 	Wire.begin();
 
@@ -144,7 +141,7 @@ void loop(){
 	}
 
 	// PC controlled program
-	if (stringComplete) {
+	if (stringComplete && pcConnection) {
 
 		//Restart timeout interval to turn off.
 		startInterval=millis();
@@ -157,7 +154,6 @@ void loop(){
 		stringComplete = false;
 	}
 
-      //if (millis()-startInterval > pauseTimeOut) off();
 
 }
 

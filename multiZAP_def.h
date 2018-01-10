@@ -63,6 +63,7 @@ DS1803 ds1803(DS1803_I2C_ADDRESS);
 
 LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
+boolean pcConnection = false;
 
 const byte ROWS = 4; //rows
 const byte COLS = 4; //columns
@@ -82,7 +83,7 @@ char key;
 /*int col =0;
 int pos = 0;
 int val;*/
-long Freq = 1000000; //100kHz
+
 
 
 

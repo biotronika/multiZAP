@@ -76,15 +76,10 @@ boolean stringComplete = false;         // whether the string is complete
 boolean memComplete = false;
 unsigned long lastFreq = MIN_FREQ_OUT;  // Uses scan function
 int minBatteryLevel = 0;
-boolean Xoff = false;					//TODO: XON/XOFF to remove
+//boolean Xoff = false;					//TODO: XON/XOFF to remove
 
-#ifdef FREE_PEMF
-byte pwm = 50;                          // TODO: Pulse width modulation is rectangle signal fulfillment : 0-100%, default 50
-boolean outputDir = false;
-byte coilState = LOW;
-#endif
 
-#ifdef MULTIZAP
+
 byte wiper0 = 0;
 byte wiper1 = 0;
 
@@ -93,7 +88,9 @@ unsigned long freqStopMillis = 0;
 unsigned long programStartMillis = 0;
 unsigned long programStopMillis = 0;
 
-#endif
+long Freq = 1000000; //100kHz
+
+
 
 //TODO: hehaka
 //Labels & jumps
@@ -112,10 +109,10 @@ const unsigned long pauseTimeOut = 600000UL;    // 600000 Time of waiting in pau
 const unsigned int btnTimeOut = 5000UL;         // Choose therapy program time out. Counted form released button.
 
 
-unsigned long pauseTime =0;
+//unsigned long pauseTime =0;
 
-volatile boolean pause = false; // true = pause on
-unsigned long pressTime = 0;    // Time of pressing the button
+//volatile boolean pause = false; // true = pause on
+//unsigned long pressTime = 0;    // Time of pressing the button
 unsigned long startInterval;    // For unused timeout off.
 int programNo = -1;              // TODO: to reconstruct in free-PEMF deprecated: 0 = PC connection, 1= first program etc.
 								// New: 0 = default program in memory, 1-9 or 1-3 = standard programs , -1 = PC
@@ -135,9 +132,9 @@ void checkBattLevel();
 void off();
 void beep( unsigned int period);
 void freq(unsigned long Freq, unsigned int period);
-void rec(unsigned int Freq, unsigned long period);  //deprecated
- int rec();
- int sin();
+//void rec(unsigned int Freq, unsigned long period);  //deprecated
+ //int rec();
+ //int sin();
  int bat();
 void wait( unsigned long period);
 void exe();
@@ -148,14 +145,14 @@ void rm();
 void cbat();
 
 
-#ifdef MULTIZAP
-void pbar(uint8_t percent, uint32_t period); 		//TODO
-void print(String *str); 							//TODO
+
+void pbar(byte percent, unsigned int period); 		//TODO
+//void print(String *str); 							//TODO
 void wipersON();
 void wipersOFF();
-#endif
 
-#ifdef MULTIZAP
+
+
 void wipersON(){
   ds1803.set_wiper0(wiper0);
   ds1803.set_wiper1(wiper1);
@@ -166,11 +163,8 @@ void wipersOFF(){
   ds1803.set_wiper1(0);
   ad9850.powerDown();
 }
-#endif
 
-#ifdef FREE_PEMF
 
-#endif
 
 
 String formatLine(int adr, String line){
@@ -250,7 +244,7 @@ void executeCmd(String cmdLine, boolean directMode){
 
     } else if (param[0]=="beep"){
 // Beep [time_ms]
-        beep(param[1].toInt());
+   	    beep( param[1].toInt() );
         Serial.println("OK");
 
 
@@ -259,14 +253,9 @@ void executeCmd(String cmdLine, boolean directMode){
     	off();
 
 
-    } else if (param[0]=="chp"){
-// Change output signal polarity
-    	Serial.println("Error: multiZAP doesn't support");
-
-
     } else if (param[0]=="wait"){
 // Wait millis
-    	wait(param[1].toInt());
+    	delay(param[1].toInt());
       	Serial.println("OK");
 
 
@@ -282,9 +271,13 @@ void executeCmd(String cmdLine, boolean directMode){
     	scan(param[1].toInt(), param[2].toInt());
     	Serial.println("OK");
 
+    } else if (param[0]=="pbar"){
+// Progress bar - pbar [percent] [time_sec_to_end]
+    	pbar(param[1].toInt(), param[2].toInt());
+    	Serial.println("OK");
 
     } else if (param[0]=="exe"){
-// Execute eeprom program only in direc mode
+// Execute eeprom program only in direct mode
     	if ( directMode) {
     		exe();
     	} else {
@@ -304,19 +297,19 @@ void executeCmd(String cmdLine, boolean directMode){
 
 ///////////////////////////// bioZAP functions ///////////////////////////////
 
-#ifdef MULTIZAP
-void pbar(uint8_t percent, uint32_t period){
+
+void pbar(byte percent, unsigned int period){
 // Scaling progress bar on lcd, and show remaining time
-//TODO: elektros
-	;
+	programStopMillis = millis() + long(period) * 1000;
+	programStartMillis = constrain( programStopMillis- ( long(period) * 100000 / percent ) ,0 ,programStopMillis);
 }
 
-void print(String *str){
+/*void print(String *str){
 // Shows script therapy message on lcd display
 // TODO: elektros
 	;
-}
-#endif
+}*/
+
 
 void cbat(){
 // Calibrate battery voltage
@@ -333,9 +326,9 @@ void rm(){
 
 	for(int i=0; i<PROGRAM_SIZE; i++){
 		EEPROM.put(i, 255);
-		if (!(i % 128)) Serial.print(".");
+		//if (!(i % 128)) Serial.print(".");
 	}
-	Serial.println("OK");
+	//Serial.println("OK");
 }
 
 void ls(){
@@ -388,14 +381,14 @@ int mem(){
 			break;
 		  }
 		}
-		Serial.println(formatLine(endAdr,"appending from..."));
+		if (pcConnection) Serial.println(formatLine(endAdr,"appending from..."));
 		eepromUpload(endAdr);
 
 	} else if (param[1].toInt()>0 && param[1].toInt()<PROGRAM_SIZE) {
 		eepromUpload(param[1].toInt());
 	} else {
-		Serial.print("Error: unknown parameter ");
-		Serial.println(param[1]);
+		if (pcConnection) Serial.print("Error: unknown parameter ");
+		if (pcConnection) Serial.println(param[1]);
 		return -1;
 	}
 
@@ -408,11 +401,17 @@ void exe(){
 	int adr=0;
 	String line;
 
+
+	programStartMillis = millis();
+
+
 	while (int endLine = readEepromLine(adr,line)){
 
 
+/*
 		Serial.print("executing: ");
 		Serial.print(line);
+*/
 
 
 		if (line.startsWith("repeat")) {
@@ -425,41 +424,19 @@ void exe(){
 	}
 
 
+/*
   	Serial.println("Script done.");
   	Serial.println("OK");
+*/
 
 }
 
 void scan(unsigned long Freq, unsigned long period){
 	// Scan from lastFreq to Freq used SCAN_STEPS by period
 
-	long scanSteps=SCAN_STEPS;
-	long stepPeriod = period /scanSteps;
-
-	if (stepPeriod < 1) {
-		scanSteps = period;
-		stepPeriod=1;
-	}
-
- 	long startFreq = lastFreq;
- 	long stepFreq = long( constrain(Freq, MIN_FREQ_OUT, MAX_FREQ_OUT) - lastFreq ) / scanSteps;
-
- /*
- 	Serial.println(Freq);
- 	Serial.println(lastFreq);
- 	Serial.println(long(Freq-lastFreq));
- 	Serial.println(startFreq);
- 	Serial.println(stepPeriod);
- 	Serial.println(scanSteps);
- 	Serial.println(stepFreq);
-*/
-
- 	for (int i=0; i<scanSteps; i++) {
- 		freq(startFreq+(i*stepFreq), stepPeriod);
- 	}
 }
 
-#ifdef MULTIZAP
+
 void freq(unsigned long Freq, unsigned int period){
 /*Start generate frequency
  *  Freq - frequency e.g. 1000 = 10.00Hz
@@ -477,41 +454,11 @@ void freq(unsigned long Freq, unsigned int period){
 	freqStopMillis = freqStartMillis + long(period) * 1000;
 
 }
-#endif
-
-#ifdef FREE_PEMF
-void freq(unsigned long Freq, unsigned int period) {
-//Rectangle signal generate, Freq=783 for 7.83Hz, period in seconds
-
-	//For scan() function propose
-	lastFreq =constrain( Freq, MIN_FREQ_OUT, MAX_FREQ_OUT) ;
-
-	unsigned long interval = 50000/constrain(Freq, MIN_FREQ_OUT, MAX_FREQ_OUT);
-	unsigned long timeUp = millis() + (period*1000);
-	unsigned long serialStartPeriod = millis();
-	unsigned long startInterval = millis();
-	unsigned long pausePressed;
-
-  boolean pause = false;
 
 
-//.......
-
-}
-#endif
 
 
-int rec(){
 
-	//-1 not supported
-	return -1;
-}
-
-int sin(){
-
-	//0 - That's it (only sin)
-	return 0;
-}
 
 void off() {
   // Power off function
@@ -521,10 +468,7 @@ void off() {
 
 	// Turn electrodes off by setting both pots to 0
 	wipersOFF();
-	//ds1803.set_wiper0(0);
-	//ds1803.set_wiper1(0);
 
-	// Turn power off if not USB power
 	digitalWrite(powerPin, LOW);
 
 
@@ -540,45 +484,12 @@ int bat() {
           );
 }
 
-void wait( unsigned long period) {
-  // wait [period_ms]
-
-  unsigned long serialStartPeriod = millis();
-  unsigned long startInterval = millis();
-
-  while(millis()-startInterval <= period){
-    //time loop
-
-	//TODO serial break command - mark @
-
-    //count each second
-    if (millis()-serialStartPeriod >= 1000) {
-      Serial.print('.');
-      serialStartPeriod = millis();
-    }
-  }
-
-}
 
 void beep( unsigned int period ) {
   // beep [period_ms]
 
-  unsigned long serialStartPeriod = millis();
-  unsigned long startInterval = millis();
-
   digitalWrite(buzerPin, HIGH);
-  while(millis()-startInterval <= period){
-    //time loop
-
-	//TODO serial break command - mark @
-
-    //count each second
-    if (millis()-serialStartPeriod >= 1000) { //one second
-      Serial.print('.');
-      serialStartPeriod = millis();
-    }
-  }
-
+  delay(period);
   digitalWrite(buzerPin, LOW);
 }
 
@@ -635,10 +546,10 @@ void checkBattLevel() {
   if ( analogRead(batPin) < minBatteryLevel) {
     //Emergency turn off
 
-
-	  Serial.println();
-	  Serial.print("Error: battery too low: ");
-	  Serial.println(bat());
+	  //TODO: lcd message
+	  if (pcConnection) Serial.println();
+	  if (pcConnection) Serial.print("Battery too low: ");
+	  if (pcConnection) Serial.println(bat());
 
 
 

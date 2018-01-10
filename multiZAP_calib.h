@@ -107,7 +107,7 @@ int _getVampl(){
 
 }
 
-int _getVMax(){
+/*int _getVMax(){
 
 	//Delay for extremely low frequency
 	int _delay = 0;
@@ -133,7 +133,7 @@ int _getVMax(){
 
 	}
 	return _vmax * 100;
-}
+}*/
 
 int _getVMin(){
 
