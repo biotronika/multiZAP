@@ -1,4 +1,4 @@
-**multiZAP**
+## **multiZAP**
 
 To compile code and upload using Arduino IDE:
 1. Download files and put all of them into multiZAP folder (it must has exactly that name). Copy also AD9850.h AD9850.cpp DS1803.h DS1803.cpp to multiZAP main folder.
@@ -16,12 +16,12 @@ See: [https://biotronika.pl]
 **Software not working correctly yet!!!**
 
 
-**Keypad manual functions:**
+## **Keypad manual functions:**
  
 ```
-[#] - Turn on - press [#] and hold 3 seconds or enter key.
+[#] - Turn on - press [#] and hold 3 seconds. [#] is also enter key.
 
-[*] - Escape or turn-off in main menu.
+[*] - Escape key or turn-off in main menu.
 
 [A] - Generate frequency 
 	1. Set frequency e.g. 10000 = 100.00Hz or use [D] as decimal separator e.g. [1][0][0][D] and press [#]
@@ -43,7 +43,7 @@ See: [https://biotronika.pl]
 	 * multiZAP -/+/++ - EEPROM
 	 * auto off after script therapy end
 	 
-[C] - TODO: multiZAP+ functions - Select and astart of SD card script therapy, express-scan etc.
+[C] - TODO: multiZAP+ functions - Select and start of SD card script therapy, express-scan etc.
 
 ```
 
