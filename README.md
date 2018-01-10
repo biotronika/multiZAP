@@ -21,7 +21,7 @@ See: [https://biotronika.pl]
 ```
 [#] - Turn on - press [#] and hold 3 seconds
 
-[*] - Turn off  - and pres [#] (yes) or [*]
+[*] - Escape or turn-off in main menu.
 
 [A] - Generate frequency 
 	1. Set frequency e.g. 10000 = 100.00Hz or use [D] as decimal separator e.g. [1][0][0][D] and press [#]
