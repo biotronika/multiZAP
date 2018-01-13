@@ -120,8 +120,14 @@ void key_0(){
 		}
 		//message("User program ...");
 		message(10);
+		delay(1000);
 
-		executeCmd("exe\n",true);  //or exe();
+		programStartMillis=millis();
+
+		//executeCmd("exe\n",true);  //or exe();
+		//exe();
+
+
 		//TODO: off();
     } else {
     	//message("No program in memory!");

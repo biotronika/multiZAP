@@ -17,7 +17,7 @@
 
 
 }*/
-
+unsigned long lastCmdLineShowed = 0;
 
 void setup (){
 
@@ -143,18 +143,32 @@ void loop(){
 		}
 
 
+	if (programStartMillis && !pcConnection){
+		//Next command
+		if (freqStartMillis==0){
+			exe();
+		}
+
+		if ( millis() > lastCmdLineShowed + 1000 ) {
+			lastCmdLineShowed = millis();
+
+			message (line,1);
+		}
+
+	}
+
 	if (freqStartMillis && !pcConnection){
 		//freqStartTime<>0 means we are during freq function
 
+		if (millis()>freqStopMillis){
+				;
+		}
 
-		if (programStartMillis) {
+		if (programStopMillis) {
 			//Show progress bar of full program
 			progressBar( (programStopMillis-programStartMillis)/1000 , (programStopMillis-millis())/1000 );
 
-			if (millis()>freqStopMillis){
-				//Next command
-				;
-			}
+
 
 		} else {
 			//Show progress bar of freq command

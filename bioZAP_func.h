@@ -89,6 +89,8 @@ unsigned long programStartMillis = 0;
 unsigned long programStopMillis = 0;
 
 long Freq = 1000000; //100kHz
+int adr=0;
+String line;
 
 
 
@@ -398,37 +400,23 @@ int mem(){
 
 void exe(){
 //Execute program
-
-	int adr=0;
-	String line;
-
-
-	programStartMillis = millis();
-
-
-	while (int endLine = readEepromLine(adr,line)){
-
+	//while (int endLine = readEepromLine(adr,line)){
+	int endLine = readEepromLine(adr,line);
 
 /*
 		Serial.print("executing: ");
 		Serial.print(line);
 */
 
-
-		if (line.startsWith("repeat")) {
-			adr=0;
-			line="";
-		}
-
-		executeCmd(line);
-		adr = adr + endLine;
+	if (line.startsWith("repeat")) {
+		adr=0;
+		line="";
 	}
 
+	executeCmd(line);
+	adr = adr + endLine;
+	//return adr;
 
-/*
-  	Serial.println("Script done.");
-  	Serial.println("OK");
-*/
 
 }
 

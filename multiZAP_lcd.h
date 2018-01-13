@@ -23,6 +23,7 @@ void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec);
 unsigned long _lastProgressBarShowed = 0;
 
 
+
 void lcd_init(){
 	//Initialize LCD display
 	lcd.init();
