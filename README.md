@@ -1,22 +1,50 @@
-## **multiZAP**
+## multiZAP
+**Software not working correctly yet!!!**
 
-To compile code and upload using Arduino IDE:
+See: [biotronika.pl](https://biotronika.pl)
+
+###To compile code and upload using Arduino IDE:
 1. Download files and put all of them into multiZAP folder (it must has exactly that name). Copy also AD9850.h AD9850.cpp DS1803.h DS1803.cpp to multiZAP main folder.
 2. Open multiZAP.ino file in Arduino IDE.
-3. Install Keypad library in Arduino (Sketch->Include Library->Add ZIP. Library..., and point to right zip file).
-4. Install LiquidCrystal I2C library.
+3. Install Keypad library in Arduino (Sketch->Include Library->Add ZIP. Library..., and point at proper zip file).
+4. Install LiquidCrystal I2C library (look upper :)
 5. Check if you have Wire & EEPROM libraries already installed (Sketch->Include Library-> see on list: Wire and EEPROM).
 6. Configure board (Tools->Board->Arduino Nano)  (Tools->Processor->ATmega328).
-7. Install Arduino Nano drivers (see biotronika.pl website).
+7. Install Arduino Nano driver - **biotronika.pl** website: [CH341SER.ZIP]( https://biotronika.pl/sites/default/files/2016-12/CH341SER.ZIP).
 8. Configure serial port. Plug USB cable to PC and multiZAP, and Tolls->Port->select right COM port.
 9. Compile and upload. Sketch->Upload. Wait until on down side of Arduino IDE window see Done uploading.
 
-See: [https://biotronika.pl]
+### Downloading existing script therapy to multiZAP
+1. Open **https://biotronika.pl/terapie** web site and select the script.
+   If you do not read in Polish, use google translator because web site not support English language yet.
+2. Click get therapy script [**+Pobierz skrypt terapii**].
+3. Download **terapia.zip** (therapy) and open **terapia.cmd** existing in zip file.
+4. If Windows 8, 8.1 or 10 opens defender window click **More info** and button **Run Anyway**
+5. Plug USB cable to your multiZAP. Be sure that the device was turned off before.
+6. Provide proper COM port into cmd window and click Enter.
+7. Now script from the web site was upload to your multiZAP device. 
+8. Click ``[*]`` key on multiZAP kepad and plug USB cable off.
+9. Turn on device and click ``[0]`` to start script therapy.
 
-**Software not working correctly yet!!!**
+### Creating your own script therapy
+1. Create account on the web site.
+2. Click new therapy **Nowa terapia** and provide data into all fields.
 
+or
+1. Use Arduino **Serial monitor view**
 
-## **Keypad manual functions:**
+or 
+1. Use any serial communication program.
+
+ Baud: **9600**
+ Data size: **8**
+ Parity: **none**
+ DTR: **ON**
+ End line: **CR**
+
+**bioZAP** script language: [https://biotronika.pl/biozap](https://biotronika.pl/biozap)
+
+## Keypad manual functions:
  
 ```
 [#] - Turn on - press [#] and hold 3 seconds. [#] is also enter key.
