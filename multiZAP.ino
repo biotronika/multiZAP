@@ -3,8 +3,20 @@
 #include "Arduino.h"
 #include "multiZAP_menu.h"
 #include "bioZAP_func.h"
+//#include <avr/pgmspace.h>
 
 
+/*void message2 (byte msgNo, byte row){
+// Message in #2 line
+	//lcd.clear();
+
+	lcd.setCursor(0, row);
+
+	for (byte b=0; b<16; b++)
+		lcd.print( char(pgm_read_byte(msg[msgNo] + b)) );
+
+
+}*/
 
 
 void setup (){
@@ -35,36 +47,51 @@ void setup (){
 	}
 
 
-	Wire.begin();
-
-	//Initialize generator & pots
-	wipersOFF();
-
-	//Calibrating battery level
-	minBatteryLevel=initBatteryLevel();
-
 	//Turning on is done.
 	beep(50);
 	//for (int j=0; j<3;j++){ beep(50); wait(100); }
 
 
+	Wire.begin();
 
-	//Count to off
-	startInterval=millis();
+	//Initialize generator & pots
+	wipersOFF();
 
-	//Get last_v_ampl and last_v_min from EEPROM
-	get_v_EEPROM();
+
+
+
 
 	if (!pcConnection) {
-		//Calibration
-		message("Calibrating...");
-		if ( !( (wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000)) > 0  &&
-				(wiper1 = calib_setp_wiper_vmin(last_v_min)) > 0                  ) ) {
+		Wire.begin();
 
-			message("Error calibration");
+		//Initialize generator & pots
+		wipersOFF();
+
+		//Calibrating battery level
+		minBatteryLevel=initBatteryLevel();
+
+		//Get last_v_ampl and last_v_min from EEPROM
+		get_v_EEPROM();
+
+		//Calibration
+//		message("Calibrating...");
+		message(0);
+
+		wiper0 = calib_gain_wiper_ampl(last_v_ampl, 10000);
+		wiper1 = calib_setp_wiper_vmin(last_v_min);
+
+		if ( wiper0 * wiper1 == 0 ) {
+
+/*			message("Error calibration",0);
+			message("w0:     w1:",1);
+			lcd.setCursor(4, 1);
+			lcd.print(wiper0);
+			lcd.setCursor(11, 1);
+			lcd.print(wiper1);*/
 			do{
 				key = keypad.getKey();
 			} while (key==NO_KEY);
+			digitalWrite(powerPin, LOW);
 		}
 		wipersOFF();
 
@@ -90,21 +117,33 @@ void loop(){
 		key = keypad.getKey();
 
 		if (key != NO_KEY){
+			beep(100);
 
-			keyPressed(key);
+			if (pcConnection) {
+				//message("Turning off -",0);
+				//message("unplug USB cable",1);
+				message(1,0);
+				message(2,1);
+				digitalWrite(powerPin, LOW);
+				while(1);
+			} else {
+				keyPressed(key);
+			}
+
+
 
 			lcd_hello(pcConnection);
 			beep(100);
 
 			//Count to off
-			startInterval=millis();
+			//startInterval=millis();
 
 			key=NO_KEY;
 
 		}
 
 
-	if (freqStartMillis){
+	if (freqStartMillis && !pcConnection){
 		//freqStartTime<>0 means we are during freq function
 
 
@@ -144,7 +183,7 @@ void loop(){
 	if (stringComplete && pcConnection) {
 
 		//Restart timeout interval to turn off.
-		startInterval=millis();
+		//startInterval=millis();
 
 		executeCmd(inputString, true);
 		Serial.print('>'); //Cursor for new command

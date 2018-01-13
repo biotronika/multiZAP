@@ -8,7 +8,7 @@
 #define MULTIZAP_DEF_H_
 
 #define HRDW_VER "multiZAP NANO3"
-#define SOFT_VER "2017-12-31"
+#define SOFT_VER "2018-01-02"
 
 
 #include <Wire.h>
@@ -27,15 +27,6 @@
 #endif
 
 #define LCD_MESSAGE_LINE 1		//Default lcd line for bioZAP messages
-
-
-//#define ENCODER_PROTOTYPE //TODO: To remove - only prototype device
-
-#ifdef ENCODER_PROTOTYPE
-#include <Encoder_Polling.h>
-#define encoderPin_A 3
-#define encoderPin_B 2
-#endif
 
 
 #define DS1803_I2C_ADDRESS 0x28
@@ -79,11 +70,8 @@ byte colPins[COLS] = {8, 7, 6, 5}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 char key;
-
-/*int col =0;
-int pos = 0;
-int val;*/
-
+byte b;
+int i;
 
 
 

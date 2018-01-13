@@ -30,7 +30,7 @@
 //BIOzap
 #define WELCOME_SCR "Free BIOzap interpreter welcome! See https://biotronika.pl"
 #define PROGRAM_SIZE 1000     	// Maximum program size
-#define PROGRAM_BUFFER 1    	// SRAM buffer size, used for script loading  TODO lack of memory
+#define PROGRAM_BUFFER 64    	// SRAM buffer size, used for script loading  TODO lack of memory
 #define MAX_CMD_PARAMS 3      	// Count of command params
 #define LCD_SCREEN_LINE 1     	// LCD user line number, -1 = no lcd, 0 = first, 1= second
 #define LCD_PBAR_LINE 0			// LCD progress bar line
@@ -113,7 +113,7 @@ const unsigned int btnTimeOut = 5000UL;         // Choose therapy program time o
 
 //volatile boolean pause = false; // true = pause on
 //unsigned long pressTime = 0;    // Time of pressing the button
-unsigned long startInterval;    // For unused timeout off.
+//unsigned long startInterval;    // For unused timeout off.
 int programNo = -1;              // TODO: to reconstruct in free-PEMF deprecated: 0 = PC connection, 1= first program etc.
 								// New: 0 = default program in memory, 1-9 or 1-3 = standard programs , -1 = PC
 byte hr = 0;                    // User pulse from hrmPin
@@ -323,11 +323,12 @@ void cbat(){
 
 void rm(){
 // Remove, clear script therapy from memory
+	EEPROM.put(0, '@');
 
-	for(int i=0; i<PROGRAM_SIZE; i++){
-		EEPROM.put(i, 255);
+//	for(int i=0; i<PROGRAM_SIZE; i++){
+//		EEPROM.put(i, 255);
 		//if (!(i % 128)) Serial.print(".");
-	}
+//	}
 	//Serial.println("OK");
 }
 

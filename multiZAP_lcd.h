@@ -10,10 +10,14 @@
 
 
 #include "bioZAP_func.h"
+#include <avr/pgmspace.h>
+#include "lang_EN.h"
 
 void message (String messageText, byte row = LCD_SCREEN_LINE);
-long inputVal (String dialogText, long defaultVal = -1, byte defaultDigits = 8);
+void message (byte msgNo, byte row= LCD_SCREEN_LINE);
+long inputVal (byte msgNo,/*String dialogText,*/ long defaultVal = -1, byte defaultDigits = 8);
 void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec);
+
 
 
 unsigned long _lastProgressBarShowed = 0;
@@ -27,6 +31,7 @@ void lcd_init(){
 
 
 void lcd_hello(boolean pcConnection){
+	//TODO:hello from ROM
 	//hello screen
 	lcd.backlight();
 	lcd.clear();
@@ -46,7 +51,7 @@ void lcd_hello(boolean pcConnection){
 }
 
 void message (String messageText, byte row ) {
-// Message in #2 line
+// String message - avoid of lack of SRAM!
 	//lcd.clear();
 	lcd.setCursor(0, row);
 	lcd.print("                ");
@@ -54,7 +59,19 @@ void message (String messageText, byte row ) {
 	lcd.print( messageText );
 }
 
-long inputVal (String dialogText, long defaultVal, byte defaultDigits){
+void message (byte msgNo, byte row){
+// Message read from ROM memory without using SRAM
+
+	lcd.setCursor(0, row);
+
+	for (b=0; b<16; b++)
+		lcd.print( char(pgm_read_byte(msg[msgNo] + b)) );
+
+}
+
+
+
+long inputVal (byte msgNo,/*String dialogText,*/ long defaultVal, byte defaultDigits){
 /* Input dialog with [#] as end
  * Return 0 - 2,147,483,647
  * Escape [*] return -1
@@ -64,14 +81,16 @@ long inputVal (String dialogText, long defaultVal, byte defaultDigits){
 	String in="0";
     byte col = 0;
 
-    Serial.print(INPUT_SIGN_KEYPAD);
-	Serial.print(dialogText);
-	Serial.print(" ");
-	Serial.println(defaultVal);
+    //Serial.print(INPUT_SIGN_KEYPAD);
+	//Serial.print(dialogText);
+	//Serial.print(" ");
+	//Serial.println(defaultVal);
 
     lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(dialogText);
+    //lcd.setCursor(0,0);
+    //message (msgNo, 0);
+    //lcd.print(dialogText);
+    message (msgNo, 0);
 
     if (defaultVal>=0) {
       lcd.setCursor(0,1);
@@ -88,7 +107,7 @@ long inputVal (String dialogText, long defaultVal, byte defaultDigits){
                if (key=='D') key='.';
                if (key=='*') {
 
-            	   Serial.println(INPUT_BACK_KEYPAD+"esc");
+            	   //Serial.println(INPUT_BACK_KEYPAD+"esc");
             	   return -1;
                }
                if (col==0) {
@@ -110,8 +129,8 @@ long inputVal (String dialogText, long defaultVal, byte defaultDigits){
 
     if (col==0 && defaultVal != -1) {
 
-    	Serial.print(INPUT_BACK_KEYPAD);
-    	Serial.println(defaultVal);
+    	//Serial.print(INPUT_BACK_KEYPAD);
+    	//Serial.println(defaultVal);
 
     	return defaultVal;
 
@@ -123,8 +142,8 @@ long inputVal (String dialogText, long defaultVal, byte defaultDigits){
     			  ( in.substring( in.indexOf('.')+1 ) + "00" ).substring(0,2);
     	}
 
-    	Serial.print(INPUT_BACK_KEYPAD);
-    	Serial.println(in.toInt());
+    	//Serial.print(INPUT_BACK_KEYPAD);
+    	//Serial.println(in.toInt());
 
     	return in.toInt();
 
@@ -179,119 +198,6 @@ void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec) {
 }
 
 
-
-#ifdef ENCODER_PROTOTYPE
-void inputVal2 (){
-//Input dialog with # as end
-//TODO: To remove
-
-	//Serial.print(String dialogTex);
-	Serial.print(" inputVal2 ");
-	//Serial.println(defaultVal);
-    String in="0";
-    boolean wiper = true;
-    long defaultVal;
-
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("gain_w0 setp_w1");
-    lcd.setCursor(0,1);
-    lcd.print(">");
-    lcd.print(ds1803.get_wiper0());
-    lcd.setCursor(8,1);
-    lcd.print(" ");
-    lcd.print(ds1803.get_wiper1());
-
-    defaultVal=ds1803.get_wiper0();
-
-    do {
-     char key = keypad.getKey();
- 	 int dir = encoder_data();
-
- 	 if (dir!=0){
- 		 if(dir > 0) {
- 			 defaultVal++;
- 		 } else {
- 			 defaultVal--;
- 		 }
-
-		 if (wiper){
-
-			lcd.setCursor(0,1);
-
-			//wiper0=defaultVal;
-
-			ds1803.set_wiper0(defaultVal);
-		 } else {
-
-			lcd.setCursor(8,1);
-
-			//wiper1=defaultVal;
-
-			ds1803.set_wiper1(defaultVal);
-		 }
-		 lcd.print(">");
-	     lcd.print(defaultVal);
-	     lcd.print("  ");
-
-	     //TODO: calibration view
-	     lcd.setCursor(13,1);
-	     lcd.print(analogRead(outVoltagePin));
-	     lcd.print("  ");
-
- 	 }
-
-      if (key != NO_KEY) {
-        if (key=='*') {
-
-            //EEPROM.write(EEPROM_WIPER0_ADDRESS,ds1803.get_wiper0()); // gain
-            //EEPROM.write(EEPROM_WIPER1_ADDRESS,ds1803.get_wiper1()); // setpoint
-
-            //lcd.clear();
-            //lcd.setCursor(0,0);
-            //lcd.print("EEPROM saved");
-
-            //delay(50);
-
-        	break;
-        }
-
-        if (key=='#') {
-        	wiper = !wiper;
-
-        	if (wiper){
-        		defaultVal = ds1803.get_wiper0();
-        	} else {
-        		defaultVal = ds1803.get_wiper1();
-        	}
-
-        	if (wiper){
-        		lcd.setCursor(8,1);
-        		lcd.print(" ");
-        		lcd.setCursor(0,1);
-        	} else {
-        		lcd.setCursor(0,1);
-        		lcd.print(" ");
-        		lcd.setCursor(8,1);
-        	}
-        	lcd.print(">");
-			lcd.print(defaultVal);
-
-			lcd.print("  ");
-		}
-
-      }
-    } while (1);
-
-    //lcd.noCursor();
-
-
-
-    do key = keypad.getKey(); while (key != NO_KEY);
-
-
-}
-#endif /* ENCODER_PROTOTYPE */
 
 
 

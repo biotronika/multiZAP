@@ -55,9 +55,9 @@ or
 	1. Set frequency e.g. 10000 = 100.00Hz or use [D] as decimal separator e.g. [1][0][0][D] and press [#]
 	2. Set time in seconds and press [#]
 
-[D] - Calibrate and save settings in EEPROM memory
+[C] - Calibrate and save settings in EEPROM memory
 	1. Set vampl - pk-pk apmplitude of sine signal e.g. 400 = 4.00V and press [#] (1.00 - 8.00V)
-	2. Set vmin - minimum extremum of sine signal e.g. 100 = 1.00V and press [#] (0.50 - 4.00)
+	2. Set vmin - minimum extremum of sine signal e.g. 100 = 1.00V and press [#] (0.50 - 4.00) (multiZAP+ supports 0.00 - 4.00V)
 	3. Set calibration frequency or simply press [#]
 	
 [0] - Start EEPROM therapy script
@@ -71,7 +71,7 @@ or
 	 * multiZAP -/+/++ - EEPROM
 	 * auto off after script therapy end
 	 
-[C] - TODO: multiZAP+ functions - Select and start of SD card script therapy, express-scan etc.
+[D] - TODO: multiZAP+ function - Select and start express-scan. You need SD card pluged.
 
 ```
 
