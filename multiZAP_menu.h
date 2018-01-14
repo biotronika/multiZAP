@@ -21,40 +21,32 @@
 
 void key_A(){
     //Freq = inputVal("Input frequency", 100000);
-    Freq = inputVal(12, 100000);
+    Freq = inputVal(12, 783);
     if (Freq>0) {
 
-    	//unsigned int period = inputVal("Input period", 10);
     	unsigned int period = inputVal(3, 10);
-    	//message(String(period));
 
-    	//Serial.print("freq ");
-    	//Serial.print(Freq);
-    	//Serial.print(" ");
-    	//Serial.println(period);
-
-    	//Start freq
+    	line="freq ";
+    	line+=String(Freq);
+    	message(line,1);
     	freq(Freq, period);
-    	//message(String(freqStopMillis-freqStartMillis));
-    	//delay(3000);
-
-
     }
 
 }
 
-void key_B(){
-	/*TODO: Configuration parameters
+/*void key_B(){
+	TODO: Configuration parameters
+	 * ARM STM32 Cortex M3 only
 	 * vmin - EEPROM
 	 * vampl - EEPROM
 	 * auto_turn_off_time - EEPROM
 	 * AD985x 0/1 - EEPROM
 	 * default_program - EEPROM
 	 * multiZAP -/+/++ - EEPROM
-	 * auto off after script therapy end
-	 */
+	 * auto off after script therapy end EEPROM
 
-}
+
+}*/
 
 
 void key_C(){
@@ -95,6 +87,9 @@ void key_C(){
 
 void key_D(){
 	//SD card express scan
+	/*
+	 * ARM ST32 Cortex M3 only
+	 */
 
 }
 
@@ -139,43 +134,25 @@ void key_0(){
 
 
 
-void key_9(){
-// For service and test issues
-/*	int vampl = inputVal("Input vampl", last_v_ampl,3);
-	int vmin = inputVal("Input vmin", last_v_min, 3);
-	Freq = inputVal("Input freq", 100000);
+/*void key_9(){
 
-	message("va:");
-	lcd.print(vampl);
-	lcd.print("  vm:");
-	lcd.print(vmin);
-	delay(3000);
 
-	message("Calibrating...");
-	byte wiper0= calib_gain_wiper_ampl(vampl, Freq);
-	byte wiper1= calib_setp_wiper_vmin(vmin);
-	lcd.clear();
-	lcd.print(Freq);
-	message("w0:");
-	lcd.print(wiper0);
-	lcd.print("  w1:");
-	lcd.print(wiper1);
-	delay(3000);*/
-
-}
+}*/
 
 void keyPressed(char key){
 
 	switch (key){
 
 		  case 'A':
-			  key_A();
-			  key=NO_KEY;
+			  if (!programStopMillis && !freqStopMillis){
+				  key_A();
+			  //key=NO_KEY;
+			  }
 			  break;
 
-		  case 'B':
+/*		  case 'B':
 			  key_B();
-			  break;
+			  break;*/
 
 		  case 'C':
 			  key_C();
@@ -189,18 +166,20 @@ void keyPressed(char key){
 			  key_asterix();
 			  break;
 
-		  case '#':
+/*		  case '#':
 			  //key_hash();
-			  break;
+			  break;*/
 
 		  case '0':
-			  key_0();
+			  if (!programStopMillis && !freqStopMillis){
+				  key_0();
+			  }
 			  break;
 
-		  default:
+/*		  default:
 			  ;
 
-			  break;
+			  break;*/
 	}
 }
 

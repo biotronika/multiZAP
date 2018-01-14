@@ -30,7 +30,7 @@
 //BIOzap
 #define WELCOME_SCR "Free BIOzap interpreter welcome! See https://biotronika.pl"
 #define PROGRAM_SIZE 1000     	// Maximum program size
-#define PROGRAM_BUFFER 64    	// SRAM buffer size, used for script loading  TODO lack of memory
+#define PROGRAM_BUFFER 128    	// SRAM buffer size, used for script loading  TODO lack of memory
 #define MAX_CMD_PARAMS 3      	// Count of command params
 #define LCD_SCREEN_LINE 1     	// LCD user line number, -1 = no lcd, 0 = first, 1= second
 #define LCD_PBAR_LINE 0			// LCD progress bar line
@@ -88,7 +88,7 @@ unsigned long freqStopMillis = 0;
 unsigned long programStartMillis = 0;
 unsigned long programStopMillis = 0;
 
-long Freq = 1000000; //100kHz
+long Freq = 783; //7.83Hz
 int adr=0;
 String line;
 
@@ -111,11 +111,6 @@ const unsigned long pauseTimeOut = 600000UL;    // 600000 Time of waiting in pau
 const unsigned int btnTimeOut = 5000UL;         // Choose therapy program time out. Counted form released button.
 
 
-//unsigned long pauseTime =0;
-
-//volatile boolean pause = false; // true = pause on
-//unsigned long pressTime = 0;    // Time of pressing the button
-//unsigned long startInterval;    // For unused timeout off.
 int programNo = -1;              // TODO: to reconstruct in free-PEMF deprecated: 0 = PC connection, 1= first program etc.
 								// New: 0 = default program in memory, 1-9 or 1-3 = standard programs , -1 = PC
 byte hr = 0;                    // User pulse from hrmPin
@@ -317,9 +312,9 @@ void cbat(){
 // Calibrate battery voltage
 
 	//Correction factor
-	byte i = 100 * param[1].toInt()/(int(analogRead(batPin)*BATTERY_VOLTAGE_RATIO));
+	b = 100 * param[1].toInt()/(int(analogRead(batPin)*BATTERY_VOLTAGE_RATIO));
 
-	EEPROM.put(EEPROM_BATTERY_CALIBRATION_ADDRESS, i);
+	EEPROM.put(EEPROM_BATTERY_CALIBRATION_ADDRESS, b);
 	Serial.println("OK");
 }
 
@@ -422,7 +417,7 @@ void exe(){
 
 void scan(unsigned long Freq, unsigned long period){
 	// Scan from lastFreq to Freq used SCAN_STEPS by period
-
+;
 }
 
 
@@ -535,11 +530,6 @@ void checkBattLevel() {
   if ( analogRead(batPin) < minBatteryLevel) {
     //Emergency turn off
 
-	  //TODO: lcd message
-	  if (pcConnection) Serial.println();
-	  if (pcConnection) Serial.print("Battery too low: ");
-	  if (pcConnection) Serial.println(bat());
-
 
 
     for (int x=0; x<10; x++){
@@ -651,7 +641,7 @@ void eepromUpload(int adr) {
   do {
     //Serial.print(char(XON));
     Xoff = readSerial2Buffer(endBuffer);
-    int b =0; // buffer pointer
+    b =0; // buffer pointer
     flagCompleted = false;
     while (!flagCompleted){
 
@@ -673,15 +663,16 @@ boolean readSerial2Buffer(int &endBuffer) {
     int i = 0; //buffer indicator
     char c;
 
-    boolean Xoff = false;
-    int highBufferLevel = 0.7 * PROGRAM_BUFFER;
+    //boolean Xoff = false;
+    //int highBufferLevel = 0.7 * PROGRAM_BUFFER;
 
-    Serial.write(XON);
-    //Serial.print("\nXON\n");
+    //Serial.write(XON);
+    //--Serial.print("\nXON\n");
 
     while(true) {
-      if (Xoff) {
+     // if (Xoff) { ;
         //after send Xoff
+/*
 
           if (Serial.available()){
             c = Serial.read();
@@ -694,12 +685,13 @@ boolean readSerial2Buffer(int &endBuffer) {
             break;
           };
            //if (i>= PROGRAM_BUFFER) break;
+*/
 
 
-      } else {
+      //} else {
         //before send Xoff
 
-          Xoff = (i > highBufferLevel);
+          //Xoff = (i > highBufferLevel);
 
           while(!Serial.available());
 
@@ -714,19 +706,20 @@ boolean readSerial2Buffer(int &endBuffer) {
           }
 
           i++;
-          if (Xoff) {
+/*          if (Xoff) {
             for (int j=0; j<64; j++)
             Serial.write(XOFF);
-            //Serial._rx_complete_irq();
-            //Serial._tx_udr_empty_irq();
-            //Serial.print("\nXOFF\n");
-          }
-      }
+            //--Serial._rx_complete_irq();
+            //--Serial._tx_udr_empty_irq();
+            //--Serial.print("\nXOFF\n");
+          }*/
+      //}
 
 
 
     }
-  return Xoff;
+  //return Xoff;
+    return false;
 
 }
 

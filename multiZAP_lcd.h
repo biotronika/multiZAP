@@ -1,7 +1,7 @@
 /*
  * multiZAP_lcd.h
  *
- *  Created on: 29 gru 2017
+ *  Created on: 29 Dec 2017
  *      Author: elektros230
  */
 
@@ -11,18 +11,22 @@
 
 #include "bioZAP_func.h"
 #include <avr/pgmspace.h>
+
+//Select your language
+#define EN_H_
+
+#ifdef EN_H_
 #include "lang_EN.h"
+#else
+#include "lang_PL.h"
+#endif
 
 void message (String messageText, byte row = LCD_SCREEN_LINE);
 void message (byte msgNo, byte row= LCD_SCREEN_LINE);
 long inputVal (byte msgNo,/*String dialogText,*/ long defaultVal = -1, byte defaultDigits = 8);
 void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec);
 
-
-
 unsigned long _lastProgressBarShowed = 0;
-
-
 
 void lcd_init(){
 	//Initialize LCD display
@@ -32,20 +36,15 @@ void lcd_init(){
 
 
 void lcd_hello(boolean pcConnection){
-	//TODO:hello from ROM
-	//hello screen
+
 	lcd.backlight();
 	lcd.clear();
-	lcd.setCursor(0,0);
-	lcd.print(HRDW_VER);
-	lcd.setCursor(0,1);
-  //lcd.print(HRDW_VER);
-  //lcd.print(" ");
-	lcd.print(SOFT_VER);
 
-    Serial.print('>');
+	message(13,0);
+	message(14,1);
+    //Serial.print('>');
 	if (pcConnection){
-		lcd.print("  ");
+		lcd.setCursor(12,1);
 		lcd.print("[PC]");
 	}
 
@@ -53,9 +52,8 @@ void lcd_hello(boolean pcConnection){
 
 void message (String messageText, byte row ) {
 // String message - avoid of lack of SRAM!
-	//lcd.clear();
-	lcd.setCursor(0, row);
-	lcd.print("                ");
+
+	message(15, row); //empty line
 	lcd.setCursor(0, row);
 	lcd.print( messageText );
 }
@@ -81,11 +79,6 @@ long inputVal (byte msgNo,/*String dialogText,*/ long defaultVal, byte defaultDi
 
 	String in="0";
     byte col = 0;
-
-    //Serial.print(INPUT_SIGN_KEYPAD);
-	//Serial.print(dialogText);
-	//Serial.print(" ");
-	//Serial.println(defaultVal);
 
     lcd.clear();
     //lcd.setCursor(0,0);
@@ -197,7 +190,6 @@ void progressBar (unsigned int totalTimeSec, unsigned int leftTimeSec) {
 	}
 
 }
-
 
 
 

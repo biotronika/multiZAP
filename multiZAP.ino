@@ -29,12 +29,11 @@ void setup (){
 	pcConnection = (bat() < USB_POWER_SUPPLY_LEVEL);
 
 	if ( !(digitalRead(powerPin)==HIGH) && !pcConnection ) {
-	//if ( false) {
+
 
 		pinMode(powerPin,  OUTPUT);
 		digitalWrite(powerPin, HIGH);
 		lcd_init();
-
 
 		rechargeBattery();
 
@@ -100,10 +99,11 @@ void setup (){
 		//Initialize serial communication
 		Serial.begin(9600);
 	    Serial.println(WELCOME_SCR);
-	    Serial.print("Device ");
+	    //Serial.print("Device ");
 	    Serial.print(HRDW_VER);
 	    Serial.print(" ");
 	    Serial.println(SOFT_VER);
+	    Serial.print(">");
 	}
 
 	lcd_hello(pcConnection);
@@ -132,7 +132,7 @@ void loop(){
 
 
 
-			lcd_hello(pcConnection);
+			//lcd_hello(pcConnection);
 			beep(100);
 
 			//Count to off
@@ -145,24 +145,28 @@ void loop(){
 
 	if (programStartMillis && !pcConnection){
 		//Next command
-		if (freqStartMillis==0){
-			exe();
+		//if (freqStartMillis==0){
+		if (millis()>freqStopMillis){
+			exe(); //next
+			message (line.substring(0, line.length()-1) ,1);
 		}
 
-		if ( millis() > lastCmdLineShowed + 1000 ) {
+/*		if ( millis() > lastCmdLineShowed + 1000 ) {
 			lastCmdLineShowed = millis();
 
-			message (line,1);
-		}
+			//message (line.substring(0, line.length()-1) ,1);
+		}*/
 
 	}
 
 	if (freqStartMillis && !pcConnection){
 		//freqStartTime<>0 means we are during freq function
 
-		if (millis()>freqStopMillis){
-				;
-		}
+/*		if (millis()>freqStopMillis){
+			//freqStopMillis=0;
+			//freqStartMillis=0;
+			;
+		}*/
 
 		if (programStopMillis) {
 			//Show progress bar of full program
