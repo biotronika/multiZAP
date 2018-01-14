@@ -74,5 +74,4 @@ byte b;
 int i;
 
 
-
 #endif /* MULTIZAP_DEF_H_ */

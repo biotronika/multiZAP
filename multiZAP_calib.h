@@ -25,24 +25,14 @@ byte calib_setp_wiper_vmin(int v_min);
 byte calib_flat_wiper_vmin(int v_min);
 int last_v_ampl = 0;
 int last_v_min = 0;
-//byte wiper0 = 0;
-//byte wiper1 = 0;
+
 
 /*************************************************************************************/
 
-//int _last_v_ampl = 0;
 
 void get_v_EEPROM(){
 	EEPROM.get( EEPROM_VAMPL_ADDRESS, last_v_ampl );
 	EEPROM.get( EEPROM_VMIN_ADDRESS, last_v_min );
-
-/*
-	last_v_ampl = EEPROM.read( EEPROM_VAMPL_ADDRESS ) << 8;
-	last_v_ampl += EEPROM.read( EEPROM_VAMPL_ADDRESS + 1 );
-
-	last_v_min = EEPROM.read( EEPROM_VMIN_ADDRESS ) << 8;
-	last_v_min += EEPROM.read( EEPROM_VMIN_ADDRESS + 1 );
-*/
 
 	//For new devices were EEPROM memory is not set properly
 	last_v_ampl= constrain( last_v_ampl, 100, 800 );
@@ -52,13 +42,7 @@ void get_v_EEPROM(){
 void set_v_EEPROM(){
 	EEPROM.put( EEPROM_VAMPL_ADDRESS, last_v_ampl );
 	EEPROM.put( EEPROM_VMIN_ADDRESS, last_v_min );
-/*
-	EEPROM.write( EEPROM_VAMPL_ADDRESS,      last_v_ampl >> 8 );
-	EEPROM.write( EEPROM_VAMPL_ADDRESS + 1,  last_v_ampl  );
 
-	EEPROM.write( EEPROM_VMIN_ADDRESS,      last_v_min >> 8 );
-	EEPROM.write( EEPROM_VMIN_ADDRESS + 1,  last_v_min  );
-*/
 }
 
 
@@ -107,33 +91,6 @@ int _getVampl(){
 
 }
 
-/*int _getVMax(){
-
-	//Delay for extremely low frequency
-	int _delay = 0;
-	if (ad9850.get_frequency() < 2000){
-		_delay = 1;
-	}
-	//First start point read
-	int x = analogRead(outVoltagePin);
-
-	//Starting to measure values
-	float _vmax = x * ONE_GRADE;
-
-
-	//Measuring vmax value
-	for( int i=0; i<200; i++){
-		x = analogRead(outVoltagePin);
-
-		if ( x * ONE_GRADE > _vmax) {
-			_vmax = x * ONE_GRADE;
-		}
-
-		if(_delay>0) delay(_delay);
-
-	}
-	return _vmax * 100;
-}*/
 
 int _getVMin(){
 
