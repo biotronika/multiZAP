@@ -45,6 +45,8 @@ or
 
 **bioZAP** script language: [https://biotronika.pl/biozap](https://biotronika.pl/biozap)
 
+[Supported bioZAP commands](https://github.com/biotronika/multiZAP/wiki)
+
 ## Keypad manual functions:
  
 ```
