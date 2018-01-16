@@ -28,6 +28,8 @@ void key_A(){
 
     	line="freq ";
     	line+=String(Freq);
+    	line+=" ";
+    	line+=String(period);
     	message(line,1);
     	freq(Freq, period);
     }

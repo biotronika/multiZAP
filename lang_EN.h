@@ -26,8 +26,8 @@ const char msg[][16] PROGMEM   =  {
 		"User program ...",	//	10
 		"No EEPROM script",	//	11
 		"Input frequency ",	//  12
-		"multiZAP NANO3  ",	//  13
-		"2018-01-13      ",	//	14
+		HRDW_VER,	//  13
+		SOFT_VER,	//	14
 		"                "};//  15 Empty string
 
 

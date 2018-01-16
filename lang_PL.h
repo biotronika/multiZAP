@@ -25,8 +25,8 @@ const char msg[][16] PROGMEM   =  {
 		"Program uzytkown",	//	10
 		"Brak programu uz",	//	11
 		"Podaj czestotl. ",	//  12
-		"multiZAP NANO3  ",	//  13
-		"2018-01-13      ",	//	14
+		HRDW_VER,	//  13
+		SOFT_VER,	//	14
 		"                "};//  15 Empty string
 
 

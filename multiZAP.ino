@@ -5,19 +5,8 @@
 #include "bioZAP_func.h"
 //#include <avr/pgmspace.h>
 
-
-/*void message2 (byte msgNo, byte row){
-// Message in #2 line
-	//lcd.clear();
-
-	lcd.setCursor(0, row);
-
-	for (byte b=0; b<16; b++)
-		lcd.print( char(pgm_read_byte(msg[msgNo] + b)) );
-
-
-}*/
-unsigned long lastCmdLineShowed = 0;
+byte refresh = 0;
+//unsigned long lastCmdLineShowed = 0;
 
 void setup (){
 
@@ -87,6 +76,7 @@ void setup (){
 			lcd.print(wiper0);
 			lcd.setCursor(11, 1);
 			lcd.print(wiper1);*/
+			message(9);
 			do{
 				key = keypad.getKey();
 			} while (key==NO_KEY);
@@ -107,6 +97,8 @@ void setup (){
 	}
 
 	lcd_hello(pcConnection);
+
+	lastOperationMillis=millis();
 }
 
 void loop(){
@@ -128,15 +120,15 @@ void loop(){
 				while(1);
 			} else {
 				keyPressed(key);
+				refresh=1;// Refresh command LCD line
 			}
 
 
-
-			//lcd_hello(pcConnection);
 			beep(100);
+			if (!freqStartMillis) lcd_hello(pcConnection); //Show menu when not executing freq
 
 			//Count to off
-			//startInterval=millis();
+			lastOperationMillis=millis();
 
 			key=NO_KEY;
 
@@ -147,11 +139,31 @@ void loop(){
 		//Next command
 		//if (freqStartMillis==0){
 		if (millis()>freqStopMillis){
-			exe(); //next
-			message (line.substring(0, line.length()-1) ,1);
+			exe(adr); //next command
+
+			lastOperationMillis=millis();
+
+			if (!adr) {
+				programStartMillis = 0;
+				programStopMillis = 0;
+				freqStartMillis = 0;
+				freqStopMillis = 0;
+				wipersOFF();
+
+				lcd_hello(pcConnection);
+
+			} else {
+				refresh = 1; //Refresh command line on LCD screen
+			}
+
 		}
 
-/*		if ( millis() > lastCmdLineShowed + 1000 ) {
+		if (refresh) {
+			message(line.substring(0, line.length()-1) ,1);
+			refresh = 0;
+		}
+
+		/*if ( millis() > lastCmdLineShowed + 1000 ) {
 			lastCmdLineShowed = millis();
 
 			//message (line.substring(0, line.length()-1) ,1);
@@ -186,14 +198,11 @@ void loop(){
 				wipersOFF();
 
 				lcd_hello(pcConnection);
-				beep(200);
+				if (!programStartMillis) beep(200); //Beep only in A_key funct.
+				lastOperationMillis=millis();
 			}
 
 		}
-
-
-
-
 
 	}
 
@@ -209,8 +218,18 @@ void loop(){
 		// clear the command string
 		inputString = "";
 		stringComplete = false;
+		lastOperationMillis=millis();
 	}
 
+
+	//Auto turn off
+	if (  !freqStartMillis && ( lastOperationMillis + pauseTimeOut < millis() )  ){
+		beep(500);
+		message(1,0);
+		message(2,1);
+		digitalWrite(powerPin, LOW);
+		while(1);
+	}
 
 }
 

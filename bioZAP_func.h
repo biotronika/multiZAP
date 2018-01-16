@@ -108,7 +108,7 @@ byte labelsPointer = 0;                 // TODO: Pointer of end label table
 char memBuffer[PROGRAM_BUFFER];
 
 const unsigned long pauseTimeOut = 600000UL;    // 600000 Time of waiting in pause state as turn power off. (60000 = 1 min.)
-const unsigned int btnTimeOut = 5000UL;         // Choose therapy program time out. Counted form released button.
+//const unsigned int btnTimeOut = 5000UL;         // Choose therapy program time out. Counted form released button.
 
 
 int programNo = -1;              // TODO: to reconstruct in free-PEMF deprecated: 0 = PC connection, 1= first program etc.
@@ -134,7 +134,7 @@ void freq(unsigned long Freq, unsigned int period);
  //int sin();
  int bat();
 void wait( unsigned long period);
-void exe();
+void exe(int &adr);
 void scan(unsigned long Freq, unsigned long period);
  int mem();
 void ls();
@@ -211,17 +211,13 @@ void executeCmd(String cmdLine, boolean directMode){
     	rm();
 
 
-    } else if (param[0]=="print"){
+/*    } else if (param[0]=="print"){
 // Print command
-		#ifdef MULTIZAP
-    	//TODO: message(param[1]);
-		#endif
 
-      if (cmdLine.length()>6) {   //TODO: I don't remember why 6 - to check (elektros)
-    	  Serial.println(cmdLine.substring(6,cmdLine.length()-1));
-      } else {
-    	  Serial.println();
-      }
+
+      if (cmdLine.length()>6) {   //More then word print+space
+    	  message(cmdLine.substring(6,cmdLine.length()-1),1);
+      }*/
 
 
     } else if (param[0]=="bat"){
@@ -229,14 +225,18 @@ void executeCmd(String cmdLine, boolean directMode){
         Serial.println(bat());
 
 
+/*
     } else if (param[0]=="cbat"){
 // Calibrate battery voltage
     	cbat();
+*/
 
 
+/*
     } else if (param[0]=="hr"){
 // Print heart rate
         Serial.println(hr);
+*/
 
 
     } else if (param[0]=="beep"){
@@ -263,24 +263,28 @@ void executeCmd(String cmdLine, boolean directMode){
       	Serial.println("OK");
 
 
+/*
     } else if (param[0]=="scan"){
 // Scan from lastFreq  - scan [freq to] [time_ms]
     	scan(param[1].toInt(), param[2].toInt());
-    	Serial.println("OK");
+    	Serial.println("Error: Not supported");
+*/
 
     } else if (param[0]=="pbar"){
 // Progress bar - pbar [percent] [time_sec_to_end]
     	pbar(param[1].toInt(), param[2].toInt());
     	Serial.println("OK");
 
+/*
     } else if (param[0]=="exe"){
 // Execute eeprom program only in direct mode
     	if ( directMode) {
-    		exe();
+    		;//exe(adr); multiZAP doesn't support direct mode
     	} else {
     		Serial.println("Error: can't execute program from eeprom program!");
     	}
 
+*/
 
     }  else {
 //Unknown command
@@ -393,24 +397,21 @@ int mem(){
 	return 0;
 }
 
-void exe(){
+void exe(int &adr){
 //Execute program
-	//while (int endLine = readEepromLine(adr,line)){
-	int endLine = readEepromLine(adr,line);
 
-/*
-		Serial.print("executing: ");
-		Serial.print(line);
-*/
+	if (int endLine = readEepromLine(adr,line)){
+	//int endLine = readEepromLine(adr,line);
 
-	if (line.startsWith("repeat")) {
+		//executeNext line
+		executeCmd(line);
+		adr = adr + endLine;
+
+	} else {
 		adr=0;
-		line="";
+
 	}
 
-	executeCmd(line);
-	adr = adr + endLine;
-	//return adr;
 
 
 }
