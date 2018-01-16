@@ -1,5 +1,4 @@
 ## multiZAP
-**Software not working correctly yet!!!**
 
 See: [biotronika.pl](https://biotronika.pl)
 
