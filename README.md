@@ -59,19 +59,18 @@ or
 
 [C] - Calibrate and save settings in EEPROM memory
 	1. Set vampl - pk-pk apmplitude of sine signal e.g. 400 = 4.00V and press [#] (1.00 - 8.00V)
-	2. Set vmin - minimum extremum of sine signal e.g. 100 = 1.00V and press [#] (0.50 - 4.00) (multiZAP+ supports 0.00 - 4.00V)
+	2. Set vmin - minimum extremum of sine signal e.g. 100 = 1.00V and press [#] (0.50 - 4.00)
 	3. Set calibration frequency or simply press [#]
 	
 [0] - Start EEPROM therapy script
 
-[1]-[9] TODO: - Start standard program in flash memory
+[1]-[9] Start standard program in flash memory
 
 [B] - TODO: Settings:
 	 * auto_turn_off_time - EEPROM
 	 * AD985x 0/1 - EEPROM
 	 * default_program - EEPROM
 	 * multiZAP -/+/++ - EEPROM
-	 * auto off after script therapy end
 	 
 [D] - TODO: multiZAP+ function - Select and start express-scan. You need SD card pluged.
 
