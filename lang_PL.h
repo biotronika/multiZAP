@@ -13,8 +13,8 @@ const char msg[][16] PROGMEM   =  {
 
 //		"-Exacly 16 cols-"
 		"Kalibruje...    ",	//	0
-		"Odlacz kabel USB",	//	1
-		"aby wylaczyc !!!",	//	2
+		"Zaladuj skypt i ",	//	1
+		"odlacz kabel USB",	//	2
 		"Wprowadz czas   ", //	3
 		"Wprowadz vampl  ", // 	4
 		"Wprowadz vmin   ",	// 	5
@@ -25,9 +25,10 @@ const char msg[][16] PROGMEM   =  {
 		"Program uzytkown",	//	10
 		"Brak programu uz",	//	11
 		"Podaj czestotl. ",	//  12
-		HRDW_VER,	//  13
-		SOFT_VER,	//	14
-		"                "};//  15 Empty string
+		HRDW_VER,			//  13
+		SOFT_VER,			//	14
+		"                ",	//	15 Empty string
+		"w0:     w1:     "};//  16
 
 
 #endif /* LANG_PL_H_ */

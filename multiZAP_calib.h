@@ -195,7 +195,9 @@ byte calib_setp_wiper_vmin(int v_min){
 	byte i = ds1803.get_wiper1();
 	if ( i>i_max ) i_max=i;
 
-	if ( v_min<=400 && v_min>=50 ){
+	v_min = constrain( v_min, 50, 400 );
+
+	//if ( v_min<=400 && v_min>=50 ){
 
 		last_v_min = v_min;
 
@@ -233,9 +235,9 @@ byte calib_setp_wiper_vmin(int v_min){
 
 
 		return i;
-	} else {
+/*	} else {
 		return 0;
-	}
+	}*/
 
 }
 
@@ -277,7 +279,7 @@ byte calib_flat_wiper_vmin(int v_min){
 		//Calculate next point
 		i=i_min+round((i_max-i_min)/2);
 
-		ds1803.set_wiper1(i); //Set calculated value to setpoint wiper
+		ds1803.set_wiper1(i); //Set calculated value to set point wiper
 
 	} while (abs(i_max-i_min)>1); //1 or 0 are good enough
 

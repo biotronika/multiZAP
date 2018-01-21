@@ -8,7 +8,16 @@
 #define MULTIZAP_DEF_H_
 
 #define HRDW_VER "multiZAP NANO3  "
-#define SOFT_VER "2018-01-16      "
+#define SOFT_VER "2018-01-21      "
+
+//Select your language
+#define EN_H_
+
+#ifdef EN_H_
+#include "lang_EN.h"
+#else
+#include "lang_PL.h"
+#endif
 
 
 #include <Wire.h>

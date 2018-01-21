@@ -14,16 +14,18 @@
 //Target device definition
 //TODO: Automate switch based on project include definition file
 #define MULTIZAP
-//#define FREE_PEMF
+#define SERIAL_DEBUG
+
 
 #include <Arduino.h>
 
-#ifdef MULTIZAP
 #include "multiZAP_def.h"
 #include "DS1803.h"
 #include "AD9850.h"
-//#include "multiZAP_lcd.h"
-#endif
+#include "multiZAP_prog.h"
+#include <avr/pgmspace.h>
+
+
 
 
 
@@ -47,16 +49,11 @@
 #endif
 
 #define SCAN_STEPS 100        	// For scan function purpose - default steps
-#define XON 17  //0x11			//TODO: to remove
-#define XOFF 19 //0x13          //TODO: to remove
-#define MAX_LABELS 8          	// Number of labels in script therapy
+#define MAX_LABELS 9          	// Number of labels in script therapy
 
-#ifndef INPUTS_DEF_
-#define INPUTS_DEF_
+
 #define INPUT_SIGN '>'			//Serial and LCD input sign
-#define INPUT_SIGN_KEYPAD '*'	//Serial sign if command were inserted from keypad
-#define INPUT_BACK_KEYPAD '<'	//Inputed back data from keypad
-#endif
+
 
 //Battery staff
 #define batPin PIN_A7                           // Analog-in battery level
@@ -76,9 +73,6 @@ boolean stringComplete = false;         // whether the string is complete
 boolean memComplete = false;
 unsigned long lastFreq = MIN_FREQ_OUT;  // Uses scan function
 int minBatteryLevel = 0;
-//boolean Xoff = false;					//TODO: XON/XOFF to remove
-
-
 
 byte wiper0 = 0;
 byte wiper1 = 0;
@@ -88,20 +82,19 @@ unsigned long freqStopMillis = 0;
 unsigned long programStartMillis = 0;
 unsigned long programStopMillis = 0;
 
-long Freq = 783; //7.83Hz
+long Freq = 100000; //783; //7.83Hz
 int adr=0;
 String line;
+byte currentProgram = 0;
 
 
 
-//TODO: hehaka
+
 //Labels & jumps
-/*
-String labelName[MAX_LABELS];           // TODO: Labels names e.g. :MY_LABEL
-unsigned int labelPointer[MAX_LABELS];  // TODO: Next line of label
-unsigned int labelLoops[MAX_LABELS];    // TODO: Number of left jump loops
-byte labelsPointer = 0;                 // TODO: Pointer of end label table
-*/
+//String labelName[MAX_LABELS];           	// TODO: Labels names e.g. :MY_LABEL
+int labelPointer[MAX_LABELS+1];  				// TODO: Next line of label
+int labelLoops[MAX_LABELS+1];    				// TODO: Number of left jump loops
+//byte labelsPointer = 0;                 	// TODO: Pointer of end label table
 
 
 //Serial buffer
@@ -113,12 +106,11 @@ const unsigned long pauseTimeOut = 600000UL;    // 600000 Time of waiting in pau
 
 int programNo = -1;              // TODO: to reconstruct in free-PEMF deprecated: 0 = PC connection, 1= first program etc.
 								// New: 0 = default program in memory, 1-9 or 1-3 = standard programs , -1 = PC
-byte hr = 0;                    // User pulse from hrmPin
 
 //function prototypes
 int readEepromLine(int fromAddress, String &lineString);
 void getParams(String &inputString);
-void executeCmd(String cmdLine, boolean directMode = false);
+int executeCmd(String cmdLine);
 void eepromUpload(int adr = 0);
 boolean readSerial2Buffer(int &endBuffer);
 void rechargeBattery();
@@ -134,20 +126,17 @@ void freq(unsigned long Freq, unsigned int period);
  //int sin();
  int bat();
 void wait( unsigned long period);
-void exe(int &adr);
+void exe(int &adr, byte prog=255);
 void scan(unsigned long Freq, unsigned long period);
  int mem();
 void ls();
 void rm();
 void cbat();
+void pbar(byte percent, unsigned int period);
+int jump(int labelNumber, int &adr);
 
-
-
-void pbar(byte percent, unsigned int period); 		//TODO
-//void print(String *str); 							//TODO
 void wipersON();
 void wipersOFF();
-
 
 
 void wipersON(){
@@ -163,7 +152,6 @@ void wipersOFF(){
 
 
 
-
 String formatLine(int adr, String line){
   String printLine;
   printLine.reserve(22);
@@ -173,7 +161,7 @@ String formatLine(int adr, String line){
   return printLine;
 }
 
-void executeCmd(String cmdLine, boolean directMode){
+int executeCmd(String cmdLine ){
 // Main interpreter function
 	//digitalWrite(powerPin, HIGH);
 	//lcd.clear();
@@ -196,9 +184,22 @@ void executeCmd(String cmdLine, boolean directMode){
 
 
     } else if (param[0].charAt(0)==':') {
-// Label (ignore)
-//TODO: for hehaka
-    	;
+// Label - setup for new label jump counter
+    	b = param[0].substring(1).toInt();
+    	if (b>0 && b<MAX_LABELS){
+    		if(param[1].length()>1) {
+    			labelLoops[b] = param[1].toInt();
+
+#ifdef SERIAL_DEBUG
+        Serial.print("label: ");
+        Serial.print(b);
+        Serial.print(" ");
+        Serial.println(labelLoops[b]);
+#endif
+    		} else {
+    			labelLoops[b] = -1; //Infinity loop
+    		}
+    	}
 
 
     } else if (param[0]==""){
@@ -211,38 +212,36 @@ void executeCmd(String cmdLine, boolean directMode){
     	rm();
 
 
-/*    } else if (param[0]=="print"){
-// Print command
-
-
-      if (cmdLine.length()>6) {   //More then word print+space
-    	  message(cmdLine.substring(6,cmdLine.length()-1),1);
-      }*/
-
-
     } else if (param[0]=="bat"){
 // Print battery voltage
-        Serial.println(bat());
-
-
-/*
-    } else if (param[0]=="cbat"){
-// Calibrate battery voltage
-    	cbat();
-*/
-
-
-/*
-    } else if (param[0]=="hr"){
-// Print heart rate
-        Serial.println(hr);
-*/
+        //Serial.println(bat());
 
 
     } else if (param[0]=="beep"){
 // Beep [time_ms]
    	    beep( param[1].toInt() );
-        Serial.println("OK");
+        //Serial.println("OK");
+
+
+    } else if (param[0]=="jump"){
+// Jump [label number]
+
+#ifdef SERIAL_DEBUG
+        Serial.print("jump1 adr: ");
+        Serial.println(adr);
+#endif
+   	    if (  jump(param[1].toInt(), adr)  )  {
+
+#ifdef SERIAL_DEBUG
+        Serial.print("jump2: ");
+        Serial.println(param[1].toInt());
+        Serial.print("jump2 adr: ");
+        Serial.println(adr);
+#endif
+   	    	return adr;
+   	    }
+
+
 
 
     } else if (param[0]=="off"){
@@ -253,47 +252,36 @@ void executeCmd(String cmdLine, boolean directMode){
     } else if (param[0]=="wait"){
 // Wait millis
     	delay(param[1].toInt());
-      	Serial.println("OK");
+      	//Serial.println("OK");
 
 
     } else if (param[0]=="freq" || param[0]=="rec" || param[0]=="sin"){
 // Generate rectangle signal - rec [freq] [time_sec]
     	//TODO: Different result functions - to divide
     	freq(param[1].toInt(), param[2].toInt());
-      	Serial.println("OK");
+      	//Serial.println("OK");
 
 
-/*
     } else if (param[0]=="scan"){
 // Scan from lastFreq  - scan [freq to] [time_ms]
     	scan(param[1].toInt(), param[2].toInt());
-    	Serial.println("Error: Not supported");
-*/
+    	//Serial.println("Error: Not supported");
+
 
     } else if (param[0]=="pbar"){
 // Progress bar - pbar [percent] [time_sec_to_end]
     	pbar(param[1].toInt(), param[2].toInt());
-    	Serial.println("OK");
+    	//Serial.println("OK");
 
-/*
-    } else if (param[0]=="exe"){
-// Execute eeprom program only in direct mode
-    	if ( directMode) {
-    		;//exe(adr); multiZAP doesn't support direct mode
-    	} else {
-    		Serial.println("Error: can't execute program from eeprom program!");
-    	}
-
-*/
 
     }  else {
 //Unknown command
 
-    	Serial.println("Unknown command: "+param[0]);
+    	if (pcConnection) Serial.println("Unknown command: "+param[0]);
 
     }
 
-
+    return 0;
 }
 
 ///////////////////////////// bioZAP functions ///////////////////////////////
@@ -301,15 +289,20 @@ void executeCmd(String cmdLine, boolean directMode){
 
 void pbar(byte percent, unsigned int period){
 // Scaling progress bar on lcd, and show remaining time
-	programStopMillis = millis() + long(period) * 1000;
-	programStartMillis = constrain( programStopMillis- ( long(period) * 100000 / percent ) ,0 ,programStopMillis);
-}
 
-/*void print(String *str){
-// Shows script therapy message on lcd display
-// TODO: elektros
-	;
-}*/
+	programStopMillis = millis() + long(period) * 1000;
+
+	programStartMillis = constrain( programStopMillis - long(period) * 100000 / percent ,
+									0,
+									programStopMillis );
+#ifdef SERIAL_DEBUG
+	//Serial.println("pbar: ");
+	//Serial.println(programStartMillis);
+	//Serial.println(programStopMillis);
+#endif
+
+
+}
 
 
 void cbat(){
@@ -397,21 +390,215 @@ int mem(){
 	return 0;
 }
 
-void exe(int &adr){
-//Execute program
+int jump(int labelNumber, int &adr){
 
-	if (int endLine = readEepromLine(adr,line)){
+	if (labelNumber>0 && labelNumber<MAX_LABELS){
+#ifdef SERIAL_DEBUG
+			Serial.print("jump3 lblPtr: ");
+			Serial.println(labelPointer[labelNumber]);
+#endif
+
+		if (labelPointer[labelNumber]) {
+
+
+			if (labelLoops[labelNumber] > 0) {
+
+				adr = labelPointer[labelNumber];	//Jump to new position
+				labelLoops[labelNumber]--;			//Decrees jump counter
+				return adr;
+
+			} else if(labelLoops[labelNumber]==-1) { //Unlimited loop
+
+				adr = labelPointer[labelNumber];
+				return adr;
+
+			}
+		}
+	}
+	return 0;
+}
+
+int readFlashLine(int fromAddress, String &lineString){
+	  //Read one line from EEPROM memory
+	  int i = 0;
+	  lineString="";
+
+#ifdef SERIAL_DEBUG
+	  	//Serial.print("readFlashLine1 fromAddress: ");
+		//Serial.println(fromAddress);
+#endif
+
+	  do {
+
+	    char eeChar = char( pgm_read_byte(&internalProgram[fromAddress+i])  )  ;
+
+#ifdef SERIAL_DEBUG
+	  	//Serial.print("readFlashLine2 eeChar: ");
+		//Serial.println(eeChar);
+#endif
+	    if ( eeChar==char('@') ) {
+	      if (i>0) {
+	        eeChar='\n';
+	      } else {
+	        i=0;
+	        break;
+	      }
+	    }
+	    lineString+=eeChar;
+	    i++;
+	    if (eeChar=='\n') break;
+	  } while (1);
+#ifdef SERIAL_DEBUG
+	  	//Serial.print("readFlashLine3 i: ");
+		//Serial.println(i);
+#endif
+	  return i;
+}
+
+int readLabelPointers(byte prog){
+	/* Initialize Labels pointers and jump loops
+	 * prog:
+	 * 0 - user program, jumps have counters,
+	 * 1-9 Internal programs,
+	 */
+	int i;
+	int adr=0;
+
+	for(i=1; i<MAX_LABELS+1; i++ )
+		labelLoops[i] = 0;
+
+	i=0;
+
+	do {
+		if (prog) {
+			//Internal program addresses
+			adr = readFlashLine(i,line);
+			getParams(line);
+		} else {
+			//EEPROM program labels
+			adr = readEepromLine(i,line);
+			getParams(line);
+		}
+
+		if (line.length()>1)
+		if (line[0]==':'){
+			byte lblNo = line[1]-48;
+			if(lblNo>0 && lblNo<10){
+				labelPointer[lblNo] = i+line.length();  // Next line of label
+				//labelPointer[lblNo] = adr;  // Next line of label
+				if (param[1].length()){
+
+					labelLoops[lblNo] = param[1].toInt();
+
+				} else {
+					labelLoops[lblNo] = -1;
+				}
+
+				//if (lblNo==prog && prog>0) return labelPointer[lblNo];
+
+			}
+		}
+
+		i+=line.length();
+		//i=adr;
+
+	} while(adr);
+
+#ifdef SERIAL_DEBUG
+	for (i=1; i<MAX_LABELS+1;i++){
+		Serial.print("Label: ");
+		Serial.print(i);
+		Serial.print(" loops: ");
+		Serial.print(labelLoops[i]);
+		Serial.print(" ptr: ");
+		Serial.println(labelPointer[i]);
+	}
+#endif
+
+/*	do {
+		adr = readFlashLine(i,line);
+
+		if (line.length()>1)
+		if (line[0]==':'){
+			byte lblNo = line[1]-48;
+			if(lblNo>0 && lblNo<10){
+				labelPointer[lblNo] = i+line.length();  // Next line of label
+				labelLoops[lblNo] = -1;
+
+				if (lblNo==prog) return labelPointer[lblNo];
+
+			}
+		}
+
+		i+=line.length();
+	} while(adr);*/
+
+	return 0;
+}
+
+void exe(int &adr, byte prog){
+//Execute program
+	int endLine;
+
+	//First time of internal program call
+	if (!adr && prog){
+		adr = readLabelPointers(prog);
+
+	} else if (!adr) {
+		readLabelPointers(0);
+	}
+
+#ifdef SERIAL_DEBUG
+		Serial.print("exe1 prog: ");
+		Serial.println(prog);
+	  	Serial.print("exe1 adr: ");
+		Serial.println(adr);
+#endif
+		if (prog==0){
+			//EEPROM memory
+
+			endLine = readEepromLine(adr,line);
+
+		} else {
+			//Flash memory
+
+			endLine = readFlashLine(adr,line);
+
+
+#ifdef SERIAL_DEBUG
+		Serial.print("exe2 endLine: ");
+		Serial.println(endLine);
+	  	Serial.print("exe2 adr: ");
+		Serial.println(adr);
+#endif
+		}
+
+
+
+	//endLine = readEepromLine(adr,line);
+	if (endLine){
 	//int endLine = readEepromLine(adr,line);
 
+#ifdef SERIAL_DEBUG
+		Serial.print("exe3 ");
+		Serial.print(adr);
+		Serial.print(": ");
+		Serial.println(line);
+#endif
 		//executeNext line
-		executeCmd(line);
-		adr = adr + endLine;
+		int adrJump = executeCmd(line);
+		if(adrJump){
+			adr=adrJump;
+		} else {
+			adr = adr + endLine;
+		}
+		endLine =0;
 
 	} else {
 		adr=0;
 
-	}
 
+	}
 
 
 }
@@ -486,17 +673,23 @@ int readEepromLine(int fromAddress, String &lineString){
   lineString="";
   do {
     char eeChar=(char)EEPROM.read(fromAddress+i);
+
     if ((eeChar==char(255)) ||(eeChar==char('@'))) {
-      if (i>0) {
+
+        return 0;
+/*      if (i>0) {
         eeChar='\n';
       } else {
         i=0;
+        return 0;
         break;
-      }
+      }*/
     }
+
     lineString+=eeChar;
     i++;
     if (eeChar=='\n') break;
+
   } while (1);
 
   return i;
@@ -635,13 +828,13 @@ void serialEvent() {
 void eepromUpload(int adr) {
   unsigned int i = 0;
   boolean flagCompleted;
-  boolean Xoff = false;
+  boolean bufferFull = false;
   int endBuffer;
   //eepromLoad = true;
 
   do {
     //Serial.print(char(XON));
-    Xoff = readSerial2Buffer(endBuffer);
+    bufferFull = readSerial2Buffer(endBuffer);
     b =0; // buffer pointer
     flagCompleted = false;
     while (!flagCompleted){
@@ -655,73 +848,37 @@ void eepromUpload(int adr) {
     }
     //End of shorter program then PROGRAM_SIZE size
 
-  } while (Xoff);
-  if (i+adr<PROGRAM_SIZE) EEPROM.write(i+adr, 255);
+  } while (bufferFull);
+  if (i+adr<PROGRAM_SIZE) EEPROM.write(i+adr, '@');
   //eepromLoad=false;
 }
 
 boolean readSerial2Buffer(int &endBuffer) {
-    int i = 0; //buffer indicator
+    int i ; //= 0; //buffer indicator
     char c;
 
-    //boolean Xoff = false;
-    //int highBufferLevel = 0.7 * PROGRAM_BUFFER;
-
-    //Serial.write(XON);
-    //--Serial.print("\nXON\n");
-
-    while(true) {
-     // if (Xoff) { ;
-        //after send Xoff
-/*
-
-          if (Serial.available()){
-            c = Serial.read();
-            memBuffer[i] = c;
-            //Serial.print(c);
-            endBuffer = i;
-            i++;
-
-          } else {
-            break;
-          };
-           //if (i>= PROGRAM_BUFFER) break;
-*/
-
-
-      //} else {
-        //before send Xoff
-
-          //Xoff = (i > highBufferLevel);
+    //while(true) {
+    for( i=0; i<PROGRAM_BUFFER; i++){
 
           while(!Serial.available());
 
           c = Serial.read();
 
           memBuffer[i] = c;
+          //Echo
           //Serial.print(c);
           endBuffer = i;
 
           if (c == '@' ) {
-            break;
+        	  beep(30);
+        	  return false;
+            //break;
           }
 
-          i++;
-/*          if (Xoff) {
-            for (int j=0; j<64; j++)
-            Serial.write(XOFF);
-            //--Serial._rx_complete_irq();
-            //--Serial._tx_udr_empty_irq();
-            //--Serial.print("\nXOFF\n");
-          }*/
-      //}
-
-
-
+          //i++;
     }
-  //return Xoff;
-    return false;
 
+    return true;
 }
 
 

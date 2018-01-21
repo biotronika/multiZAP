@@ -5,6 +5,8 @@
 #include "bioZAP_func.h"
 //#include <avr/pgmspace.h>
 
+
+
 byte refresh = 0;
 //unsigned long lastCmdLineShowed = 0;
 
@@ -15,39 +17,44 @@ void setup (){
 
 	//Check if started with key # pressed or not
 	pinMode(powerPin,  INPUT);
+
+
 	pcConnection = (bat() < USB_POWER_SUPPLY_LEVEL);
 
+
 	if ( !(digitalRead(powerPin)==HIGH) && !pcConnection ) {
+	// !!! digitalRead(powerPin) you can do before turnOn_init()
 
+		//pinMode(powerPin,  OUTPUT);
+		//digitalWrite(powerPin, HIGH);
 
-		pinMode(powerPin,  OUTPUT);
-		digitalWrite(powerPin, HIGH);
-		lcd_init();
+		turnOn_init();
 
 		rechargeBattery();
 
 	} else {
 
 		//Turn on
-		pinMode(powerPin,  OUTPUT);
-		digitalWrite(powerPin, HIGH);
-		lcd_init();
+		//pinMode(powerPin,  OUTPUT);
+		//digitalWrite(powerPin, HIGH);
+
+		turnOn_init();
 	}
 
+#ifdef SERIAL_DEBUG
+	pcConnection = false;
+#endif
 
 	//Turning on is done.
 	beep(50);
-	//for (int j=0; j<3;j++){ beep(50); wait(100); }
-
 
 	Wire.begin();
 
 	//Initialize generator & pots
 	wipersOFF();
 
-
-
-
+	delay(200);
+	//readLabelPointers(0);
 
 	if (!pcConnection) {
 		Wire.begin();
@@ -62,21 +69,21 @@ void setup (){
 		get_v_EEPROM();
 
 		//Calibration
-//		message("Calibrating...");
-		message(0);
+		message(0); //"Calibrating..."
 
 		wiper0 = calib_gain_wiper_ampl(last_v_ampl, 10000);
 		wiper1 = calib_setp_wiper_vmin(last_v_min);
 
 		if ( wiper0 * wiper1 == 0 ) {
 
-/*			message("Error calibration",0);
-			message("w0:     w1:",1);
+			message(9,0);  //"Error calibration"
+			message(16,1); //"w0:     w1:      "
+
 			lcd.setCursor(4, 1);
 			lcd.print(wiper0);
 			lcd.setCursor(11, 1);
-			lcd.print(wiper1);*/
-			message(9);
+			lcd.print(wiper1);
+
 			do{
 				key = keypad.getKey();
 			} while (key==NO_KEY);
@@ -84,7 +91,9 @@ void setup (){
 		}
 		wipersOFF();
 
+#ifndef SERIAL_DEBUG
 	} else {
+#endif
 
 		//Initialize serial communication
 		Serial.begin(9600);
@@ -96,15 +105,13 @@ void setup (){
 	    Serial.print(">");
 	}
 
+
 	lcd_hello(pcConnection);
 
 	lastOperationMillis=millis();
 }
 
 void loop(){
-
-
- 	//if (!pcConnection) {
 
 		key = keypad.getKey();
 
@@ -137,9 +144,13 @@ void loop(){
 
 	if (programStartMillis && !pcConnection){
 		//Next command
-		//if (freqStartMillis==0){
+
 		if (millis()>freqStopMillis){
-			exe(adr); //next command
+#ifdef SERIAL_DEBUG
+	  	//Serial.print("start adr: ");
+		//Serial.println(adr);
+#endif
+			exe(adr, currentProgram); //currentProgram); //next command
 
 			lastOperationMillis=millis();
 
@@ -150,6 +161,7 @@ void loop(){
 				freqStopMillis = 0;
 				wipersOFF();
 
+				currentProgram = 0;
 				lcd_hello(pcConnection);
 
 			} else {
@@ -163,22 +175,12 @@ void loop(){
 			refresh = 0;
 		}
 
-		/*if ( millis() > lastCmdLineShowed + 1000 ) {
-			lastCmdLineShowed = millis();
-
-			//message (line.substring(0, line.length()-1) ,1);
-		}*/
 
 	}
 
-	if (freqStartMillis && !pcConnection){
+	if (freqStartMillis /*&& !pcConnection*/){
 		//freqStartTime<>0 means we are during freq function
 
-/*		if (millis()>freqStopMillis){
-			//freqStopMillis=0;
-			//freqStartMillis=0;
-			;
-		}*/
 
 		if (programStopMillis) {
 			//Show progress bar of full program
@@ -197,6 +199,7 @@ void loop(){
 				freqStopMillis = 0;
 				wipersOFF();
 
+
 				lcd_hello(pcConnection);
 				if (!programStartMillis) beep(200); //Beep only in A_key funct.
 				lastOperationMillis=millis();
@@ -209,25 +212,29 @@ void loop(){
 	// PC controlled program
 	if (stringComplete && pcConnection) {
 
-		//Restart timeout interval to turn off.
-		//startInterval=millis();
+		executeCmd(inputString);
 
-		executeCmd(inputString, true);
-		Serial.print('>'); //Cursor for new command
+		//Cursor for new command
+		Serial.print('>');
 
 		// clear the command string
 		inputString = "";
 		stringComplete = false;
+
+		//Restart timeout interval to turn off.
 		lastOperationMillis=millis();
 	}
 
 
 	//Auto turn off
 	if (  !freqStartMillis && ( lastOperationMillis + pauseTimeOut < millis() )  ){
+
 		beep(500);
-		message(1,0);
-		message(2,1);
+
+		message(2); //"unplug USB cable"
+
 		digitalWrite(powerPin, LOW);
+
 		while(1);
 	}
 

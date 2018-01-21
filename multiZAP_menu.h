@@ -109,37 +109,48 @@ void key_0(){
 	if ((byte)EEPROM.read(0)!=255 && (byte)EEPROM.read(0)!=0) {
 		//User program execute
 
+		message(10); //"User program ...",
 		if ( !( (wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000)) > 0  &&
 				(wiper1 = calib_setp_wiper_vmin(last_v_min)) > 0                  ) ) {
 
-			//message("Error calibration");
-			message(9);
+
+			message(9); //"Error calibration"
 		}
-		//message("User program ...");
-		message(10);
 		delay(1000);
 
+
+		currentProgram=0;
 		programStartMillis=millis();
 
-		//executeCmd("exe\n",true);  //or exe();
-		//exe();
-
-
-		//TODO: off();
     } else {
-    	//message("No program in memory!");
-    	message(11);
-    }
 
+    	message(11); //"No program in memory!"
+    }
+}
+void keys_1_9(byte prog){
+
+		line="Program: ";
+		line+=prog;
+		message(line);
+
+		if ( !( (wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000)) > 0  &&
+				(wiper1 = calib_setp_wiper_vmin(last_v_min)) > 0                  ) ) {
+
+			message(9); //"Error calibration"
+			delay(3000);
+
+			//to do callibration wrong
+		} else {
+			delay(1000);
+
+			adr=0; //?
+			currentProgram = prog;
+			programStartMillis=millis();
+		}
 
 }
 
 
-
-/*void key_9(){
-
-
-}*/
 
 void keyPressed(char key){
 
@@ -168,9 +179,10 @@ void keyPressed(char key){
 			  key_asterix();
 			  break;
 
-/*		  case '#':
-			  //key_hash();
-			  break;*/
+		  case '1' ... '9':
+
+		  	  keys_1_9(int(key)-48);
+			  break;
 
 		  case '0':
 			  if (!programStopMillis && !freqStopMillis){
@@ -178,10 +190,6 @@ void keyPressed(char key){
 			  }
 			  break;
 
-/*		  default:
-			  ;
-
-			  break;*/
 	}
 }
 
