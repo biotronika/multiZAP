@@ -14,7 +14,7 @@
 //Target device definition
 //TODO: Automate switch based on project include definition file
 #define MULTIZAP
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 
 #include <Arduino.h>
