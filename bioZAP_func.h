@@ -27,8 +27,6 @@
 
 
 
-
-
 //BIOzap
 #define WELCOME_SCR "Free BIOzap interpreter welcome! See https://biotronika.pl"
 #define PROGRAM_SIZE 1000     	// Maximum program size
@@ -494,7 +492,7 @@ int readLabelPointers(byte prog){
 					labelLoops[lblNo] = -1;
 				}
 
-				//if (lblNo==prog && prog>0) return labelPointer[lblNo];
+				if (lblNo==prog && prog>0) return labelPointer[lblNo];
 
 			}
 		}
