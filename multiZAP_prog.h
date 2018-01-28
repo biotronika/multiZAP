@@ -228,7 +228,7 @@ const char internalProgram[] PROGMEM   = {
 		"#Szyszynka 15m\n"
 #endif
 		"wait 3000\n"
-		"pbar 100 30\n"
+		"pbar 100 900\n"
 		"beep 100\n"
 		"freq 7666750 180\n"
 		"freq 2000 180\n"

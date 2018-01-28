@@ -11,7 +11,7 @@
 
 //#include <Arduino.h>
 #include "multiZAP_def.h"
-#include "multiZAP_calib.h"
+//#include "multiZAP_calib.h"
 #include "multiZAP_lcd.h"
 #include "bioZAP_func.h"
 
@@ -31,6 +31,12 @@ void key_A(){
     	line+=" ";
     	line+=String(period);
     	message(line,1);
+
+		if (calib()) {
+			message(9);
+			delay(3000);
+		}
+
     	freq(Freq, period);
     }
 
@@ -54,18 +60,26 @@ void key_A(){
 void key_C(){
 	// Calibrate - set new vmin and vampl and saving in EEPROM
 
+		//long currentFreq = ad9850.get_frequency();
 		get_v_EEPROM();
 
 		//int vampl = inputVal("Input vampl", last_v_ampl,3);
 		int vampl = inputVal(4, last_v_ampl,3);
 		//int vmin = inputVal("Input vmin", last_v_min, 3);
 		int vmin = inputVal(5, last_v_min, 3);
-		Freq = 100000; //inputVal("Input freq", 100000);
+
+		//Freq = 100000; //inputVal("Input freq", 100000);
 
 		//message("Calibrating...");
 		message(0);
-		byte wiper0 = calib_gain_wiper_ampl(vampl, Freq);
-		byte wiper1 = calib_setp_wiper_vmin(vmin);
+		if (Freq){
+			//during working
+			wiper0 = calib_gain_wiper_ampl(vampl, Freq);
+		} else {
+			//not working
+			wiper0 = calib_gain_wiper_ampl(vampl, 100000);
+		}
+		wiper1 = calib_setp_wiper_vmin(vmin);
 
 		if ( wiper0 * wiper1 ){
 			//Save last vampl and vmin
@@ -76,6 +90,9 @@ void key_C(){
 			//message("Wiper's error!",0);
 			message(7,0);
 		}
+		//Off if at calibration beeging was off
+		if (!Freq) wipersOFF();
+
 
 	/*
 		message("w0:");
@@ -110,16 +127,14 @@ void key_0(){
 		//User program execute
 
 		message(10); //"User program ...",
-		if ( !( (wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000)) > 0  &&
-				(wiper1 = calib_setp_wiper_vmin(last_v_min)) > 0                  ) ) {
-
-
-			message(9); //"Error calibration"
-		}
 		delay(1000);
-
-
 		currentProgram=0;
+
+		if (calib()) {
+			message(9);
+			delay(3000);
+		}
+
 		programStartMillis=millis();
 
     } else {
@@ -132,8 +147,22 @@ void keys_1_9(byte prog){
 		line="Program: ";
 		line+=prog;
 		message(line);
+		delay(1000);
 
-		if ( !( (wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000)) > 0  &&
+		if (currentProgram==-1){
+			adr=0;
+			currentProgram = prog;
+
+			if (calib()) {
+				message(9);
+				delay(3000);
+			}
+
+			programStartMillis=millis();
+		}
+
+
+/*		if ( !( (wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000)) > 0  &&
 				(wiper1 = calib_setp_wiper_vmin(last_v_min)) > 0                  ) ) {
 
 			message(9); //"Error calibration"
@@ -146,7 +175,7 @@ void keys_1_9(byte prog){
 			adr=0; //?
 			currentProgram = prog;
 			programStartMillis=millis();
-		}
+		}*/
 
 }
 

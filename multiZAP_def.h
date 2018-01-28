@@ -8,10 +8,11 @@
 #define MULTIZAP_DEF_H_
 
 #define HRDW_VER "multiZAP NANO3  "
-#define SOFT_VER "2018-01-21      "
+#define SOFT_VER "2018-01-28      "
 
 //Select your language
 #define EN_H_
+//#define PL_H_
 
 #ifdef EN_H_
 #include "lang_EN.h"
@@ -45,6 +46,7 @@
 
 #define powerPin 4
 #define buzerPin 13
+#define pin3Pin 2
 
 #define outVoltagePin PIN_A6
 
@@ -78,6 +80,7 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 char key;
 byte b;
 int i;
+long l;
 
 unsigned long lastOperationMillis; //For auto turn off
 

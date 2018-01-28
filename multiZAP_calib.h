@@ -9,10 +9,19 @@
 #define CALIB_H_
 
 #include <Arduino.h>
-#include "bioZAP_func.h"
+//#include "bioZAP_func.h"
 //#include "DS1803.h"
 //#include "AD9850.h"
-//#include "multiZAP_def.h"
+
+#include "multiZAP_def.h"
+
+#define EEPROM_VAMPL_ADDRESS 1019				// v_ampl - multiZAP
+#define EEPROM_VMIN_ADDRESS 1021				// v_min - multiZAP
+
+#define VMIN_MIN 50								//vmin & vampl extremes
+#define VMIN_MAX 400
+#define VAMPL_MIN 100
+#define VAMPL_MAX 800
 
 
 
@@ -35,8 +44,8 @@ void get_v_EEPROM(){
 	EEPROM.get( EEPROM_VMIN_ADDRESS, last_v_min );
 
 	//For new devices were EEPROM memory is not set properly
-	last_v_ampl= constrain( last_v_ampl, 100, 800 );
-	last_v_min = constrain( last_v_min, 50, 400 );
+	last_v_ampl= constrain( last_v_ampl, VAMPL_MIN, VAMPL_MAX );
+	last_v_min = constrain( last_v_min, VMIN_MIN, VMIN_MAX );
 }
 
 void set_v_EEPROM(){
@@ -195,7 +204,7 @@ byte calib_setp_wiper_vmin(int v_min){
 	byte i = ds1803.get_wiper1();
 	if ( i>i_max ) i_max=i;
 
-	v_min = constrain( v_min, 50, 400 );
+	v_min = constrain( v_min, VMIN_MIN, VMIN_MAX );
 
 	//if ( v_min<=400 && v_min>=50 ){
 

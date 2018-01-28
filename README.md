@@ -5,7 +5,7 @@ See: [biotronika.pl](https://biotronika.pl)
 ### To compile code and upload using Arduino IDE:
 1. Download files and put all of them into multiZAP folder (it must has exactly that name). Copy also AD9850.h AD9850.cpp DS1803.h DS1803.cpp to multiZAP main folder.
 2. Open multiZAP.ino file in Arduino IDE.
-3. Select langage by changing **#define EN_H_** into e.g. **#define PL_H_** English is default.
+3. Select langage by changing **#define EN_H_** into e.g. **#define PL_H_** in **multiZAP_def.h** English is default.
 4. Install Keypad library in Arduino (Sketch->Include Library->Add ZIP. Library..., and point at proper zip file).
 5. Install LiquidCrystal I2C library (look upper :)
 6. Check if you have Wire & EEPROM libraries already installed (Sketch->Include Library-> see on list: Wire and EEPROM).
@@ -70,10 +70,10 @@ or
 	 * auto_turn_off_time - EEPROM
 	 * AD985x 0/1 - EEPROM
 	 * default_program - EEPROM
-	 * multiZAP -/+/++ - EEPROM
 	 
 [D] - TODO: multiZAP+ function - Select and start express-scan. You need SD card pluged.
 
 ```
 
 Enjoy :)
+

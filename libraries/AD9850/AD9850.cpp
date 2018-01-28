@@ -102,6 +102,8 @@ void AD9850::powerDown()
   write(w0);//write w0
 
   clock_FQUP();
+
+  _Freq=0;
 }
 
 void AD9850::write(byte word)

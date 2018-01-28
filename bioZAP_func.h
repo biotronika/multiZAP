@@ -20,6 +20,7 @@
 #include <Arduino.h>
 
 #include "multiZAP_def.h"
+#include "multiZAP_calib.h"
 #include "DS1803.h"
 #include "AD9850.h"
 #include "multiZAP_prog.h"
@@ -29,26 +30,18 @@
 
 //BIOzap
 #define WELCOME_SCR "Free BIOzap interpreter welcome! See https://biotronika.pl"
-#define PROGRAM_SIZE 1000     	// Maximum program size
-#define PROGRAM_BUFFER 128    	// SRAM buffer size, used for script loading  TODO lack of memory
-#define MAX_CMD_PARAMS 3      	// Count of command params
-#define LCD_SCREEN_LINE 1     	// LCD user line number, -1 = no lcd, 0 = first, 1= second
-#define LCD_PBAR_LINE 0			// LCD progress bar line
-#define MIN_FREQ_OUT 1        	// 0.01 Hz
+#define PROGRAM_SIZE 1000     		// Maximum program size
+#define PROGRAM_BUFFER 128    		// SRAM buffer size, used for script loading  TODO lack of memory
+#define MAX_CMD_PARAMS 3      		// Count of command params
 
-#ifdef FREE_PEMF
-#define MAX_FREQ_OUT 5000     					// 50Hz
-#endif
+#define LCD_SCREEN_LINE 1     		// LCD user line number, -1 = no lcd, 0 = first, 1= second
+#define LCD_PBAR_LINE 0				// LCD progress bar line
 
-#ifdef MULTIZAP
-#define MAX_FREQ_OUT 90000000 					// 900kHz
-#define EEPROM_VAMPL_ADDRESS 1019				// v_ampl - multiZAP
-#define EEPROM_VMIN_ADDRESS 1021				// v_min - multiZAP
-#endif
+#define FREQ_MIN 1        			// 0.01 Hz
+#define FREQ_MAX 90000000 			// 900kHz
+#define FREQ_MAX_PERIOD 1800		//Maximum duration of freq function in seconds
 
-#define SCAN_STEPS 100        	// For scan function purpose - default steps
-#define MAX_LABELS 9          	// Number of labels in script therapy
-
+//#define SCAN_STEPS 100        	// For scan function purpose - default steps
 
 #define INPUT_SIGN '>'			//Serial and LCD input sign
 
@@ -69,8 +62,8 @@ String inputString = "";                // a string to hold incoming serial data
 String param[MAX_CMD_PARAMS];           // param[0] = cmd name
 boolean stringComplete = false;         // whether the string is complete
 boolean memComplete = false;
-unsigned long lastFreq = MIN_FREQ_OUT;  // Uses scan function
-int minBatteryLevel = 0;
+
+//int minBatteryLevel = 0;
 
 byte wiper0 = 0;
 byte wiper1 = 0;
@@ -80,19 +73,23 @@ unsigned long freqStopMillis = 0;
 unsigned long programStartMillis = 0;
 unsigned long programStopMillis = 0;
 
-long Freq = 100000; //783; //7.83Hz
+long Freq = 100000; 				// 1kHz
+unsigned long lastFreq = FREQ_MIN;  // Uses scan function
+
 int adr=0;
+
 String line;
-byte currentProgram = 0;
-
-
-
+int currentProgram = -1;
+byte pin3 = 0;   			//State of pin3
 
 //Labels & jumps
-//String labelName[MAX_LABELS];           	// TODO: Labels names e.g. :MY_LABEL
-int labelPointer[MAX_LABELS+1];  				// TODO: Next line of label
-int labelLoops[MAX_LABELS+1];    				// TODO: Number of left jump loops
-//byte labelsPointer = 0;                 	// TODO: Pointer of end label table
+#define MAX_LABELS 9          					// Number of labels in script therapy (0 is not used)
+
+//String labelName[MAX_LABELS];           		// TODO: Labels names e.g. :MY_LABEL
+//byte labelsPointer = 0;                 		// TODO: Pointer of end label table
+
+int labelPointer[MAX_LABELS+1];  				// Next line of label
+int labelLoops[MAX_LABELS+1];    				// Number of left jump loops
 
 
 //Serial buffer
@@ -112,7 +109,7 @@ int executeCmd(String cmdLine);
 void eepromUpload(int adr = 0);
 boolean readSerial2Buffer(int &endBuffer);
 void rechargeBattery();
-int initBatteryLevel();
+//int initBatteryLevel();
 void checkBattLevel();
 
 
@@ -124,18 +121,29 @@ void freq(unsigned long Freq, unsigned int period);
  //int sin();
  int bat();
 void wait( unsigned long period);
-void exe(int &adr, byte prog=255);
-void scan(unsigned long Freq, unsigned long period);
+void exe(int &adr, int prog=-1);
+void scan(unsigned long Freq, unsigned int period);
  int mem();
 void ls();
 void rm();
-void cbat();
+//void cbat();
 void pbar(byte percent, unsigned int period);
 int jump(int labelNumber, int &adr);
 
 void wipersON();
 void wipersOFF();
 
+int calib(){
+	wipersON();
+	if ( !( (wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000)) > 0  &&
+			(wiper1 = calib_setp_wiper_vmin(last_v_min)) > 0                  ) ) {
+
+		return 1;
+
+	} else {
+		return 0;
+	}
+}
 
 void wipersON(){
   ds1803.set_wiper0(wiper0);
@@ -161,9 +169,6 @@ String formatLine(int adr, String line){
 
 int executeCmd(String cmdLine ){
 // Main interpreter function
-	//digitalWrite(powerPin, HIGH);
-	//lcd.clear();
-	//lcd.print("Executing program...");
 
 	getParams(cmdLine);
 
@@ -185,8 +190,10 @@ int executeCmd(String cmdLine ){
 // Label - setup for new label jump counter
     	b = param[0].substring(1).toInt();
     	if (b>0 && b<MAX_LABELS){
-    		if(param[1].length()>1) {
-    			labelLoops[b] = param[1].toInt();
+    		if(param[1].length()>=1) {
+    			if (param[1].toInt()) {
+    				labelLoops[b] = param[1].toInt()-1;
+    			}
 
 #ifdef SERIAL_DEBUG
         Serial.print("label: ");
@@ -212,34 +219,49 @@ int executeCmd(String cmdLine ){
 
     } else if (param[0]=="bat"){
 // Print battery voltage
-        //Serial.println(bat());
+       if(pcConnection)  Serial.println(bat());
 
 
     } else if (param[0]=="beep"){
 // Beep [time_ms]
+
    	    beep( param[1].toInt() );
-        //Serial.println("OK");
+
+
+    } else if (param[0]=="pin3"){
+// Socket pin3 <state> If n¹ state pin3 = !pin3
+
+    	if (param[1].length()==1){
+        	if (param[1]=='~'){
+        		if(pin3) pin3=0; else pin3=1;
+        	} else if (param[1].toInt()==1) {
+				pin3=1;
+			} else {
+				pin3=0;
+			}
+        	//pinMode(pin3Pin, OUTPUT);
+        	digitalWrite(pin3Pin, pin3);
+    	}
+
 
 
     } else if (param[0]=="jump"){
 // Jump [label number]
 
 #ifdef SERIAL_DEBUG
-        Serial.print("jump1 adr: ");
-        Serial.println(adr);
+        //Serial.print("jump1 adr: ");
+        //Serial.println(adr);
 #endif
    	    if (  jump(param[1].toInt(), adr)  )  {
 
 #ifdef SERIAL_DEBUG
-        Serial.print("jump2: ");
-        Serial.println(param[1].toInt());
-        Serial.print("jump2 adr: ");
-        Serial.println(adr);
+        //Serial.print("jump2: ");
+        //Serial.println(param[1].toInt());
+        //Serial.print("jump2 adr: ");
+        //Serial.println(adr);
 #endif
    	    	return adr;
    	    }
-
-
 
 
     } else if (param[0]=="off"){
@@ -247,29 +269,58 @@ int executeCmd(String cmdLine ){
     	off();
 
 
+    } else if (param[0]=="vmin"){
+// Set vmin
+    	i= param[1].toInt();
+    	if (i) {
+    		wiper0 = calib_setp_wiper_vmin(  constrain(i, VMIN_MIN, VMIN_MAX)  ); // multiZAP_calib.h
+    	}
+
+
+    } else if (param[0]=="vampl"){
+// Set vampl
+    	i= param[1].toInt();
+    	if (i) {
+    		wiper1 = calib_gain_wiper_ampl(constrain(i, VAMPL_MIN, VAMPL_MAX),  Freq); // multiZAP_calib.h
+    	}
+
+
     } else if (param[0]=="wait"){
 // Wait millis
     	delay(param[1].toInt());
-      	//Serial.println("OK");
 
 
     } else if (param[0]=="freq" || param[0]=="rec" || param[0]=="sin"){
-// Generate rectangle signal - rec [freq] [time_sec]
-    	//TODO: Different result functions - to divide
-    	freq(param[1].toInt(), param[2].toInt());
-      	//Serial.println("OK");
+// Generate sinus or rectangle signal - freq [freq] [time_sec]
+
+    	l= param[1].toInt();
+    	i= param[2].toInt();
+    	if (l && i){
+    		freq(
+    				constrain(l, FREQ_MIN, FREQ_MAX),
+    				constrain(i, 1, FREQ_MAX_PERIOD)
+				);
+    	}
+
 
 
     } else if (param[0]=="scan"){
 // Scan from lastFreq  - scan [freq to] [time_ms]
-    	scan(param[1].toInt(), param[2].toInt());
-    	//Serial.println("Error: Not supported");
+    	//scan(param[1].toInt(), param[2].toInt());
+    	//TODO: lastFreq and Freq change to one
+    	l= param[1].toInt();
+    	i= param[2].toInt();
+    	if (l && i){
+    		scan(
+    				constrain(l, FREQ_MIN, FREQ_MAX),
+					constrain(i, 5, FREQ_MAX_PERIOD)
+				);
+    	}
 
 
     } else if (param[0]=="pbar"){
 // Progress bar - pbar [percent] [time_sec_to_end]
     	pbar(param[1].toInt(), param[2].toInt());
-    	//Serial.println("OK");
 
 
     }  else {
@@ -293,17 +344,10 @@ void pbar(byte percent, unsigned int period){
 	programStartMillis = constrain( programStopMillis - long(period) * 100000 / percent ,
 									0,
 									programStopMillis );
-#ifdef SERIAL_DEBUG
-	//Serial.println("pbar: ");
-	//Serial.println(programStartMillis);
-	//Serial.println(programStopMillis);
-#endif
-
-
 }
 
 
-void cbat(){
+/*void cbat(){
 // Calibrate battery voltage
 
 	//Correction factor
@@ -311,7 +355,7 @@ void cbat(){
 
 	EEPROM.put(EEPROM_BATTERY_CALIBRATION_ADDRESS, b);
 	Serial.println("OK");
-}
+}*/
 
 void rm(){
 // Remove, clear script therapy from memory
@@ -398,11 +442,16 @@ int jump(int labelNumber, int &adr){
 
 		if (labelPointer[labelNumber]) {
 
+#ifdef SERIAL_DEBUG
+			Serial.print("jump4 lblLoops: ");
+			Serial.println(labelLoops[labelNumber]);
+#endif
 
 			if (labelLoops[labelNumber] > 0) {
 
 				adr = labelPointer[labelNumber];	//Jump to new position
 				labelLoops[labelNumber]--;			//Decrees jump counter
+
 				return adr;
 
 			} else if(labelLoops[labelNumber]==-1) { //Unlimited loop
@@ -453,7 +502,7 @@ int readFlashLine(int fromAddress, String &lineString){
 	  return i;
 }
 
-int readLabelPointers(byte prog){
+int readLabelPointers(int prog){
 	/* Initialize Labels pointers and jump loops
 	 * prog:
 	 * 0 - user program, jumps have counters,
@@ -468,7 +517,7 @@ int readLabelPointers(byte prog){
 	i=0;
 
 	do {
-		if (prog) {
+		if (prog>0) {
 			//Internal program addresses
 			adr = readFlashLine(i,line);
 			getParams(line);
@@ -486,7 +535,9 @@ int readLabelPointers(byte prog){
 				//labelPointer[lblNo] = adr;  // Next line of label
 				if (param[1].length()){
 
-					labelLoops[lblNo] = param[1].toInt();
+					if (param[1].toInt()>0) {
+						labelLoops[lblNo] = param[1].toInt()-1;
+					}
 
 				} else {
 					labelLoops[lblNo] = -1;
@@ -513,33 +564,16 @@ int readLabelPointers(byte prog){
 	}
 #endif
 
-/*	do {
-		adr = readFlashLine(i,line);
-
-		if (line.length()>1)
-		if (line[0]==':'){
-			byte lblNo = line[1]-48;
-			if(lblNo>0 && lblNo<10){
-				labelPointer[lblNo] = i+line.length();  // Next line of label
-				labelLoops[lblNo] = -1;
-
-				if (lblNo==prog) return labelPointer[lblNo];
-
-			}
-		}
-
-		i+=line.length();
-	} while(adr);*/
 
 	return 0;
 }
 
-void exe(int &adr, byte prog){
+void exe(int &adr, int prog){
 //Execute program
 	int endLine;
 
 	//First time of internal program call
-	if (!adr && prog){
+	if (!adr && (prog>0) ){
 		adr = readLabelPointers(prog);
 
 	} else if (!adr) {
@@ -552,15 +586,14 @@ void exe(int &adr, byte prog){
 	  	Serial.print("exe1 adr: ");
 		Serial.println(adr);
 #endif
-		if (prog==0){
+		if (prog>0){
 			//EEPROM memory
+			endLine = readFlashLine(adr,line);
 
-			endLine = readEepromLine(adr,line);
 
 		} else {
 			//Flash memory
-
-			endLine = readFlashLine(adr,line);
+			endLine = readEepromLine(adr,line);
 
 
 #ifdef SERIAL_DEBUG
@@ -601,9 +634,10 @@ void exe(int &adr, byte prog){
 
 }
 
-void scan(unsigned long Freq, unsigned long period){
+void scan(unsigned long Freq, unsigned int period){
 	// Scan from lastFreq to Freq used SCAN_STEPS by period
-;
+	//TODO:
+	freq( Freq, period);
 }
 
 
@@ -614,7 +648,7 @@ void freq(unsigned long Freq, unsigned int period){
  */
 
 	//For scan() function propose
-	lastFreq =constrain( Freq, MIN_FREQ_OUT, MAX_FREQ_OUT);
+	lastFreq =constrain( Freq, FREQ_MIN, FREQ_MAX);
 
 	//start
 	wipersON();
@@ -640,9 +674,8 @@ void off() {
 	wipersOFF();
 
 	digitalWrite(powerPin, LOW);
-
-
 }
+
 
 int bat() {
   // Get battery voltage function
@@ -675,13 +708,7 @@ int readEepromLine(int fromAddress, String &lineString){
     if ((eeChar==char(255)) ||(eeChar==char('@'))) {
 
         return 0;
-/*      if (i>0) {
-        eeChar='\n';
-      } else {
-        i=0;
-        return 0;
-        break;
-      }*/
+
     }
 
     lineString+=eeChar;
@@ -719,7 +746,7 @@ void getParams(String &inputString){
 void checkBattLevel() {
   //Check battery level
 
-  if ( analogRead(batPin) < minBatteryLevel) {
+  if ( analogRead(batPin) < MIN_BATTERY_LEVEL /*minBatteryLevel*/) {
     //Emergency turn off
 
 
@@ -784,7 +811,7 @@ void rechargeBattery() {
 	}  while (1); //forever loop
 }
 
-int initBatteryLevel(){
+/*int initBatteryLevel(){
 
 	  //Auto-correction voltage - for new device - see bat & cbat commands
 	  if ( (byte)EEPROM.read(EEPROM_BATTERY_CALIBRATION_ADDRESS) > 130 ||
@@ -793,11 +820,11 @@ int initBatteryLevel(){
 	  }
 
 	  //Define minimum battery level uses in working for performance purpose.
-	  return 	/*0-1023*/ 100 *
+	  return 	0-1023 100 *
 	                       MIN_BATTERY_LEVEL /
 	                       BATTERY_VOLTAGE_RATIO /
 	                       (byte)EEPROM.read(EEPROM_BATTERY_CALIBRATION_ADDRESS);
-}
+}*/
 
 void serialEvent() {
  //if (!eepromLoad) {

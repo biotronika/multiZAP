@@ -12,6 +12,9 @@ byte refresh = 0;
 
 void setup (){
 
+	//User socket pin3
+	pinMode(pin3Pin, OUTPUT);
+
 	pinMode(buzerPin, OUTPUT);
 	//pinMode(powerPin,  OUTPUT);
 
@@ -53,7 +56,7 @@ void setup (){
 	//Initialize generator & pots
 	wipersOFF();
 
-	delay(200);
+	delay(300);
 	//readLabelPointers(0);
 
 	if (!pcConnection) {
@@ -63,7 +66,7 @@ void setup (){
 		wipersOFF();
 
 		//Calibrating battery level
-		minBatteryLevel=initBatteryLevel();
+		//minBatteryLevel = MIN_BATTERY_LEVEL; //initBatteryLevel();
 
 		//Get last_v_ampl and last_v_min from EEPROM
 		get_v_EEPROM();
@@ -71,10 +74,10 @@ void setup (){
 		//Calibration
 		message(0); //"Calibrating..."
 
-		wiper0 = calib_gain_wiper_ampl(last_v_ampl, 10000);
+		wiper0 = calib_gain_wiper_ampl(last_v_ampl, 100000);
 		wiper1 = calib_setp_wiper_vmin(last_v_min);
 
-		if ( wiper0 * wiper1 == 0 ) {
+		if ( (wiper0 * wiper1) == 0 ) {
 
 			message(9,0);  //"Error calibration"
 			message(16,1); //"w0:     w1:      "
@@ -161,7 +164,7 @@ void loop(){
 				freqStopMillis = 0;
 				wipersOFF();
 
-				currentProgram = 0;
+				currentProgram = -1;
 				lcd_hello(pcConnection);
 
 			} else {
@@ -198,6 +201,7 @@ void loop(){
 				freqStartMillis = 0;
 				freqStopMillis = 0;
 				wipersOFF();
+				currentProgram=-1;
 
 
 				lcd_hello(pcConnection);
@@ -237,6 +241,10 @@ void loop(){
 
 		while(1);
 	}
+
+
+	//Check battery voltage
+	checkBattLevel();
 
 }
 
