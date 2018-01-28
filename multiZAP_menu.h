@@ -123,33 +123,35 @@ void key_asterix(){
 
 
 void key_0(){
-	if ((byte)EEPROM.read(0)!=255 && (byte)EEPROM.read(0)!=0) {
-		//User program execute
+	if (currentProgram==-1){
+		if ((byte)EEPROM.read(0)!=255 && (byte)EEPROM.read(0)!=0) {
+			//User program execute
 
-		message(10); //"User program ...",
-		delay(1000);
-		currentProgram=0;
+			message(10); //"User program ...",
+			delay(1000);
+			currentProgram=0;
 
-		if (calib()) {
-			message(9);
-			delay(3000);
+			if (calib()) {
+				message(9);
+				delay(3000);
+			}
+
+			programStartMillis=millis();
+
+		} else {
+
+			message(11); //"No program in memory!"
 		}
-
-		programStartMillis=millis();
-
-    } else {
-
-    	message(11); //"No program in memory!"
-    }
+	}
 }
 void keys_1_9(byte prog){
 
-		line="Program: ";
-		line+=prog;
-		message(line);
-		delay(1000);
-
 		if (currentProgram==-1){
+
+			line="Program: ";
+			line+=prog;
+			message(line);
+			delay(1000);
 			adr=0;
 			currentProgram = prog;
 
