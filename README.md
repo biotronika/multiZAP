@@ -5,14 +5,14 @@ See: [biotronika.pl](https://biotronika.pl)
 ### To compile code and upload using Arduino IDE:
 1. Download files and put all of them into multiZAP folder (it must has exactly that name). Copy also AD9850.h AD9850.cpp DS1803.h DS1803.cpp to multiZAP main folder.
 2. Open multiZAP.ino file in Arduino IDE.
-3. Select langage by changing **#define EN_H_** into e.g. **#define PL_H_** in **multiZAP_def.h** English is default.
+3. Optional select Polish language by changing **#define EN_H_** into **#define PL_H_** in **multiZAP_def.h**. English is default.
 4. Install Keypad library in Arduino (Sketch->Include Library->Add ZIP. Library..., and point at proper zip file).
-5. Install LiquidCrystal I2C library (look upper :)
+5. Install LiquidCrystal I2C library (where above :)
 6. Check if you have Wire & EEPROM libraries already installed (Sketch->Include Library-> see on list: Wire and EEPROM).
 7. Configure board (Tools->Board->Arduino Nano)  (Tools->Processor->ATmega328).
 8. Install Arduino Nano driver - **biotronika.pl** website: [CH341SER.ZIP]( https://biotronika.pl/sites/default/files/2016-12/CH341SER.ZIP).
 9. Configure serial port. Plug USB cable to PC and multiZAP, and Tolls->Port->select right COM port.
-10. Compile and upload. Sketch->Upload. Wait until on down side of Arduino IDE window see Done uploading.
+10. Compile and upload. Sketch->Upload. Wait until on down side of Arduino IDE window see **Done uploading**.
 
 ### Downloading existing script therapy to multiZAP (Windows only)
 1. Open **https://biotronika.pl/terapie** web site and select the script.
@@ -28,7 +28,7 @@ See: [biotronika.pl](https://biotronika.pl)
 
 ### Creating your own script therapy
 1. Create account on the web site.
-2. Click new therapy **Nowa terapia** and provide data into all fields.
+2. Click new therapy **Nowa terapia** link and provide data into all fields.
 
 or
 1. Use Arduino **Serial monitor view**
@@ -75,5 +75,5 @@ or
 
 ```
 
-Enjoy :)
+Enjoy using your multiZap device and wishing you best of health :)
 
