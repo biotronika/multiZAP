@@ -3,6 +3,7 @@
 See: [biotronika.pl](https://biotronika.pl)
 
 ### To compile code and upload using Arduino IDE:
+0. Instal keypad.zip in Arduino IDE. Sketch -> Include library -> Add ZIP. library...
 1. Download files and put all of them into multiZAP folder (it must has exactly that name). Copy also AD9850.h AD9850.cpp DS1803.h DS1803.cpp to multiZAP main folder.
 2. Open multiZAP.ino file in Arduino IDE.
 3. Optional select Polish language by changing **#define EN_H_** into **#define PL_H_** in **multiZAP_def.h**. English is default.
