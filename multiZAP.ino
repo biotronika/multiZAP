@@ -186,13 +186,13 @@ void loop(){
 
 
 		if (programStopMillis) {
-			//Show progress bar of full program
-			progressBar( (programStopMillis-programStartMillis)/1000 , (programStopMillis-millis())/1000 );
+			//Show progress bar for full program
+			progressBar( long((programStopMillis-programStartMillis)/1000) , long((programStopMillis-millis())/1000) );
 
 
 
 		} else {
-			//Show progress bar of freq command
+			//Show progress bar for freq command
 			progressBar( (freqStopMillis-freqStartMillis)/1000 , (freqStopMillis-millis())/1000 );
 
 			if (millis()>freqStopMillis){

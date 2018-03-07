@@ -223,18 +223,18 @@ const char internalProgram[] PROGMEM   = {
 
         ":9\n"
 #ifdef EN_H_
-		"#Pineal gland 15m\n"
+		"#Pineal gland 16m\n"
 #else
-		"#Szyszynka 15m\n"
+		"#Szyszynka 16m\n"
 #endif
 		"wait 3000\n"
-		"pbar 100 900\n"
+		"pbar 100 960\n"
 		"beep 100\n"
-		"freq 7666750 180\n"
+		"freq 783 120\n"
 		"freq 2000 180\n"
 		"freq 53700 180\n"
 		"freq 66200 180\n"
-		"freq 783 180\n"
+		"freq 93600 300\n"
 		"beep 500\n"
 		"off\n"
 

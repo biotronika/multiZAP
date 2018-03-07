@@ -74,6 +74,20 @@ int _getVampl(){
 	for( int i=0; i<200; i++){
 		x = analogRead(outVoltagePin);
 
+#ifdef SERIAL_DEBUG
+/*
+		Serial.print("i:");
+		Serial.println(i);
+		Serial.print(" _vmin:");
+		Serial.println(_vmin);
+		Serial.print(" _vmax:");
+		Serial.println(_vmax);
+		Serial.print(" x:");
+		Serial.println(x);
+*/
+
+#endif
+
 		if ( x * ONE_GRADE > _vmax) {
 			_vmax = x * ONE_GRADE;
 		}
@@ -96,7 +110,7 @@ int _getVampl(){
 
 
 	}
-	return (_vmax-_vmin) * 100;
+	return (_vmax-_vmin) * 100.0;
 
 }
 
@@ -169,9 +183,12 @@ byte calib_gain_wiper_ampl(int v_ampl,  long freq){
 		ds1803.set_wiper0(i);
 
 		do {
-
+			int a =_getVampl();
+#ifdef SERIAL_DEBUG
+		Serial.println(a);
+#endif
 			//Check
-			if ( v_ampl > _getVampl() ){
+			if ( v_ampl > a ){
 				i_min=i;
 			} else {
 				i_max=i;

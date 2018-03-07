@@ -339,9 +339,9 @@ int executeCmd(String cmdLine ){
 void pbar(byte percent, unsigned int period){
 // Scaling progress bar on lcd, and show remaining time
 
-	programStopMillis = millis() + long(period) * 1000;
+	programStopMillis = millis() + long(period) * 1000L;
 
-	programStartMillis = constrain( programStopMillis - long(period) * 100000 / percent ,
+	programStartMillis = constrain( programStopMillis - long(period) * 100000L / long(percent) ,
 									0,
 									programStopMillis );
 }

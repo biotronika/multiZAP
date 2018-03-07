@@ -21,7 +21,7 @@
 
 void key_A(){
     //Freq = inputVal("Input frequency", 100000);
-    Freq = inputVal(12, 783);
+    Freq = inputVal(12, 100000);
     if (Freq>0) {
 
     	unsigned int period = inputVal(3, 10);
@@ -90,17 +90,17 @@ void key_C(){
 			//message("Wiper's error!",0);
 			message(7,0);
 		}
-		//Off if at calibration beeging was off
+		//Off if at calibration begun from wipers off
 		if (!Freq) wipersOFF();
 
 
-	/*
+
 		message("w0:");
 		lcd.print(wiper0);
 		lcd.print("  w1:");
 		lcd.print(wiper1);
-		delay(3000);
-	*/
+		delay(5000);
+
 }
 
 

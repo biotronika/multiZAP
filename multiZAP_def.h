@@ -8,7 +8,7 @@
 #define MULTIZAP_DEF_H_
 
 #define HRDW_VER "multiZAP NANO3  "
-#define SOFT_VER "2018-01-28      "
+#define SOFT_VER "2018-03-06      "
 
 //Select your language
 #define EN_H_
@@ -51,7 +51,7 @@
 #define outVoltagePin PIN_A6
 
 #define REF_VOLTAGE 15.6383   //This voltage equals 1023 on analog input
-#define ONE_GRADE 0.015287    //REF_VOLTAGE/1023 --One bit //0.015635
+#define ONE_GRADE 0.015635    //0.015287    //REF_VOLTAGE/1023 --One bit //0.015635
 
 
 AD9850 ad9850(AD9850__CLK, AD9850__FQUP, AD9850__DATA);
@@ -60,6 +60,7 @@ AD9850 ad9850(AD9850__CLK, AD9850__FQUP, AD9850__DATA);
 DS1803 ds1803(DS1803_I2C_ADDRESS);
 
 LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+//LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 boolean pcConnection = false;
 

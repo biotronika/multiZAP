@@ -16,7 +16,8 @@
 void message (String messageText, byte row = LCD_SCREEN_LINE);
 void message (byte msgNo, byte row= LCD_SCREEN_LINE);
 long inputVal (byte msgNo,/*String dialogText,*/ long defaultVal = -1, byte defaultDigits = 8);
-void progressBar (unsigned long totalTimeSec, unsigned long leftTimeSec);
+void progressBar (long totalTimeSec, long leftTimeSec);
+//void progressBar (unsigned long totalTimeSec, unsigned long leftTimeSec);
 
 unsigned long _lastProgressBarShowed = 0;
 
@@ -140,14 +141,15 @@ long inputVal (byte msgNo,/*String dialogText,*/ long defaultVal, byte defaultDi
     }
 }
 
-void progressBar (unsigned long totalTimeSec, unsigned long leftTimeSec) {
+void progressBar (long totalTimeSec, long leftTimeSec) {
 //Showing progress with left time in formats: 999m (greater then 10min), 120s (less then 10min)
 
 #ifdef SERIAL_DEBUG
-	//Serial.println("progressBar1:");
+	Serial.print("progressBar1: ");
 	//Serial.println(totalTimeSec);
-	//Serial.println(leftTimeSec);
+	Serial.println(leftTimeSec);
 #endif
+	Serial.println(leftTimeSec);
 
 	//Show ones a second
 	if ( millis() > _lastProgressBarShowed + 1000 ) {
@@ -159,7 +161,70 @@ void progressBar (unsigned long totalTimeSec, unsigned long leftTimeSec) {
 		if (leftTimeSec<36000) {
 			if (leftTimeSec>600){
 
+				lcd.print(  leftTimeSec/60 );
+				lcd.print("m   ");
+			} else if (leftTimeSec<60) {
+
+				lcd.print( leftTimeSec );
+				lcd.print("s   ");
+			} else {
+				//Minutes section
 				lcd.print( int( leftTimeSec/60 ) );
+				lcd.print(':');
+
+				//Seconds section
+				if (leftTimeSec % 60 <10) lcd.print('0');
+				lcd.print(leftTimeSec % 60);
+			}
+		}
+
+
+		if (totalTimeSec) {
+
+			byte percent = 5 + 100 * leftTimeSec / totalTimeSec;
+
+#ifdef SERIAL_DEBUG
+			//Serial.print("progressBar2 percent: ");
+			//Serial.println(percent);
+#endif
+			lcd.setCursor(5,LCD_PBAR_LINE);
+			for (int i=0; i<(percent/10);i++) lcd.write(255); //lcd.write('#');
+
+			lcd.print("          ");
+
+			lcd.setCursor(4,LCD_PBAR_LINE);
+			lcd.write('[');
+
+			lcd.setCursor(15,LCD_PBAR_LINE);
+			lcd.write(']');
+		}
+
+	}
+
+}
+
+/*
+void progressBar (unsigned long totalTimeSec, unsigned long leftTimeSec) {
+//Showing progress with left time in formats: 999m (greater then 10min), 120s (less then 10min)
+
+#ifdef SERIAL_DEBUG
+	Serial.print("progressBar1: ");
+	//Serial.println(totalTimeSec);
+	Serial.println(leftTimeSec);
+#endif
+	Serial.println(leftTimeSec);
+
+	//Show ones a second
+	if ( millis() > _lastProgressBarShowed + 1000 ) {
+		_lastProgressBarShowed = millis();
+
+
+		// Show progress bar in LCD_PBAR_LINE line - first is 0
+		lcd.setCursor( 0, LCD_PBAR_LINE );
+		if (leftTimeSec<36000) {
+			if (leftTimeSec>600){
+
+				lcd.print(  leftTimeSec/60 );
 				lcd.print("m   ");
 			} else if (leftTimeSec<60) {
 
@@ -202,6 +267,8 @@ void progressBar (unsigned long totalTimeSec, unsigned long leftTimeSec) {
 }
 
 
+
+*/
 
 
 #endif /* MULTIZAP_LCD_H_ */
