@@ -10,6 +10,8 @@
 
 
 #include "bioZAP_func.h"
+#include "Keypad.h"
+#include "multiZAP_def.h"
 
 
 
