@@ -59,7 +59,7 @@ AD9850 ad9850(AD9850__CLK, AD9850__FQUP, AD9850__DATA);
 
 DS1803 ds1803(DS1803_I2C_ADDRESS);
 
-LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x3F for a 16 chars and 2 line display
 //LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 boolean pcConnection = false;
