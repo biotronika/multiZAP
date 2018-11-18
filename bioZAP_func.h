@@ -233,7 +233,7 @@ int executeCmd(String cmdLine ){
 // Socket pin3 <state> If n¹ state pin3 = !pin3
 
     	if (param[1].length()==1){
-        	if (param[1]=='~'){
+        	if (param[1]=="~"){
         		if(pin3) pin3=0; else pin3=1;
         	} else if (param[1].toInt()==1) {
 				pin3=1;
