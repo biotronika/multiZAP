@@ -81,6 +81,7 @@ int adr=0;
 String line;
 int currentProgram = -1;
 byte pin3 = 0;   			//State of pin3
+//byte out =0;
 
 //Labels & jumps
 #define MAX_LABELS 9          					// Number of labels in script therapy (0 is not used)
@@ -243,7 +244,18 @@ int executeCmd(String cmdLine ){
         	digitalWrite(pin3Pin, pin3);
     	}
 
+/*    } else if (param[0]=="out"){
+// Out <state>
 
+    	if (param[1].length()==1){
+        	if (param[1].toInt()==1) {
+				//out=1;
+			} else {
+				//out=0;
+			}
+        	//pinMode(pin3Pin, OUTPUT);
+        	digitalWrite(pin3Pin, pin3);
+    	}*/
 
     } else if (param[0]=="jump"){
 // Jump [label number]
