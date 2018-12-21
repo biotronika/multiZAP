@@ -31,6 +31,7 @@ class AD9850{
       int _FQUP;
       int _Data;
       int _quartzClock;
+      double _Freq;
 
       void write(byte word);
       void clock_CLK();
