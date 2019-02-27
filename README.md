@@ -9,7 +9,7 @@ See: [biotronika.pl](https://biotronika.pl)
 4. Install Keypad library in Arduino (Sketch->Include Library->Add ZIP. Library..., and point at proper zip file).
 5. Install LiquidCrystal I2C library (where above :)
 6. Check if you have Wire & EEPROM libraries already installed (Sketch->Include Library-> see on list: Wire and EEPROM).
-7. Configure board (Tools->Board->Arduino Nano)  (Tools->Processor->ATmega328).
+7. Configure board: Tools->Board->Arduino Nano and **Tools->Processor->ATmega328P (Old Bootloader)**.
 8. Install Arduino Nano driver - **biotronika.pl** website: [CH341SER.ZIP]( https://biotronika.pl/sites/default/files/2016-12/CH341SER.ZIP).
 9. Configure serial port. Plug USB cable to PC and multiZAP, and Tolls->Port->select right COM port.
 10. Compile and upload. Sketch->Upload. Wait until on down side of Arduino IDE window see **Done uploading**.
