@@ -693,9 +693,9 @@ int bat() {
   // Get battery voltage function
 
   return (  analogRead(batPin) *
-            BATTERY_VOLTAGE_RATIO *
+            BATTERY_VOLTAGE_RATIO /* *
             (byte)EEPROM.read(EEPROM_BATTERY_CALIBRATION_ADDRESS) /
-            100
+            100 */
           );
 }
 
@@ -758,7 +758,7 @@ void getParams(String &inputString){
 void checkBattLevel() {
   //Check battery level
 
-  if ( analogRead(batPin) < MIN_BATTERY_LEVEL /*minBatteryLevel*/) {
+  if ( bat() < MIN_BATTERY_LEVEL /*minBatteryLevel*/) {
     //Emergency turn off
 
 

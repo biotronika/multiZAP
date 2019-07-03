@@ -8,7 +8,7 @@
 #define MULTIZAP_DEF_H_
 
 #define HRDW_VER "multiZAP NANO3  "
-#define SOFT_VER "2018-03-06      "
+#define SOFT_VER "2019-07-03      "
 
 //Select your language
 #define EN_H_
