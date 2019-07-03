@@ -23,8 +23,8 @@ See: [biotronics.eu](https://biotronics.eu)
 4. If Windows 8, 8.1 or 10 opens defender window, then click **More info** and button **Run Anyway**
 5. Plug USB cable to your multiZAP. Be sure that the device was turned off before.
 6. Click **Connect** and select proper COM port window and click OK.
-7. Click **Download to device**. Now choosen script from the web site is uploading to your multiZAP device. 
-8. Wait a moment and finally click ``[*]`` key on multiZAP kepad and plug USB cable off.
+7. Click **Download to device**. Now chosen script from the web site is uploading to your multiZAP device. 
+8. Wait a moment and finally click ``[*]`` key on multiZAP keypad and plug USB cable off.
 9. Turn on device and click ``[0]`` to start script therapy.
 
 ### Creating your own script therapy
@@ -52,8 +52,8 @@ or
 	2. Set time in seconds and press [#]
 
 [C] - Calibrate and save settings in EEPROM memory
-	1. Set vampl - pk-pk apmplitude of sine signal e.g. 400 = 4.00V and press [#] (1.00 - 8.00V)
-	2. Set vmin - minimum extremum of sine signal e.g. 100 = 1.00V and press [#] (0.50 - 4.00)
+	1. Set vampl - pk-pk amplitude of sine signal e.g. 400 = 4.00V and press [#] (1.00 - 8.00V)
+	2. Set vmin - minimum extreme of sine signal e.g. 100 = 1.00V and press [#] (0.50 - 4.00)
 	3. Set calibration frequency or simply press [#]
 	
 [0] - Start EEPROM therapy script
