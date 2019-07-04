@@ -29,7 +29,7 @@ See: [biotronics.eu](https://biotronics.eu)
 
 ### Downloading existing script therapy to multiZAP (Windows only)
 1. Open **https://biotronics.eu/terapie** web site and select the script.
-2. Click get therapy script [**Download therapy script**].
+2. Click [**Download therapy script**].
 3. Download exe file e.g. 21.exe and open it.
 4. If Windows 8, 8.1 or 10 opens defender window, then click **More info** and button **Run Anyway**
 5. Plug USB cable to your multiZAP. Be sure that the device was turned off before.
