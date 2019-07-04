@@ -2,19 +2,30 @@
 
 See: [biotronics.eu](https://biotronics.eu)
 
-2019-07-03 - Fixed measuring the battery low voltage, which turn the device off.
+
 
 ### To compile code and upload using Arduino IDE:
 1. Download files and put all of them into multiZAP folder (it must has exactly that name). 
 2. Open multiZAP.ino file in Arduino IDE.
 3. Optional select Polish language by changing **#define EN_H_** into **#define PL_H_** in **multiZAP_def.h**. English is default.
-4. Install Keypad library in Arduino (Sketch->Include Library->Add ZIP. Library..., and point at proper zip file).
+4. Install Keypad library in Arduino (Sketch->Include Library->Add ZIP. Library..., and point at proper zip file). 
 5. Install LiquidCrystal I2C library (where above :)
 6. Check if you have Wire & EEPROM libraries already installed (Sketch->Include Library-> see on list: Wire and EEPROM).
-7. Configure board: Tools->Board->Arduino Nano and **Tools->Processor->ATmega328P (Old Bootloader)**.
+
+**Arduino NANO R3**
+7. Configure board: Tools->Board->Arduino Nano and **Tools->Processor->ATmega328P (Old Bootloader)**. For experimental **Arduino NANO EVERY** see below.
 8. Install Arduino Nano driver - **biotronics.eu** website: [CH341SER.ZIP]( https://biotronics.eu/sites/default/files/2016-12/CH341SER.ZIP).
-9. Configure serial port. Plug USB cable to PC and multiZAP, and Tolls->Port->select right COM port.
+9. Configure serial port. Plug mini-USB cable to PC and multiZAP, and Tolls->Port->select right COM port.
 10. Compile and upload. Sketch->Upload. Wait until on down side of Arduino IDE window see **Done uploading**.
+
+**Arduino NANO EVERY**
+1. Tools->Board->Boards Manager...-> select Arduino megaAVR Boards by Arduino -> Select the newest version (e.g. 1.8.1) and click Install
+2. Configure board: Tools->Board->Arduino Nano Every and **Tools->Register emulation->ATMEGA328**.
+3. In file **multiZAP_def.h** remove comment in line //#define FIX_BUG_NANO_EVERY
+4. For **Arduino NANO EVERY** you must have use exactly Keypad library attached in Keypad.zip file.
+5. Configure serial port. Plug micro-USB cable to PC and multiZAP, and Tolls->Port->select right COM port.
+6. Compile and upload. Sketch->Upload. Wait until on down side of Arduino IDE window see **Done uploading**.
+
 
 ### Downloading existing script therapy to multiZAP (Windows only)
 1. Open **https://biotronics.eu/terapie** web site and select the script.
@@ -71,3 +82,7 @@ or
 
 Enjoy using your multiZap device and wishing you best of health :)
 
+
+## Change log
+2019-07-03 - Fixed measuring the battery low voltage, which turn the device off.
+2019-07-04 - Add FIX_BUG_NANO_EVERY directive to fix bug in **Arduino Nano Every** in Atmega328 compatibility mode (changed A7 and A6 pins)

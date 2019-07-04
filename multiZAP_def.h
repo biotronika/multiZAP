@@ -10,6 +10,9 @@
 #define HRDW_VER "multiZAP NANO3  "
 #define SOFT_VER "2019-07-03      "
 
+//Uncomment below line if you use Arduino Nano Every (6kB SRAM)
+//#define FIX_BUG_NANO_EVERY
+
 //Select your language
 #define EN_H_
 //#define PL_H_
@@ -48,7 +51,11 @@
 #define buzerPin 13
 #define pin3Pin 2
 
+#ifdef FIX_BUG_NANO_EVERY
+#define outVoltagePin PIN_A7 //A7 as real A6 pin output
+#else
 #define outVoltagePin PIN_A6
+#endif
 
 #define REF_VOLTAGE 15.6383   //This voltage equals 1023 on analog input
 #define ONE_GRADE 0.015635    //0.015287    //REF_VOLTAGE/1023 --One bit //0.015635

@@ -1,8 +1,8 @@
 /**********************************************************
  * bioZAP_func.h
  * 		multiZAP and free-PEMF devices library.
- * 		BIOzap script therapy language.
- * 		See https://biotronika.pl
+ * 		bioZAP script therapy language.
+ * 		See https://biotronics.eu
  *
  *  Created on: 2017-01-01
  *      Author: elektros230 & hehaka
@@ -47,7 +47,12 @@
 
 
 //Battery staff
+#ifdef FIX_BUG_NANO_EVERY
+#define outVoltagePin PIN_A6 //A6 as real A7 pin output
+#else
 #define batPin PIN_A7                           // Analog-in battery level
+#endif
+
 #define BATTERY_VOLTAGE_RATIO 0.153             // Include divider 10k/4,7k resistors. 5V*(10k+4,7k)/4,7k = 0,0153 (x10)
 #define EEPROM_BATTERY_CALIBRATION_ADDRESS 1023 // Memory address of battery correction factor - 100 means RATIO x 1,00
 
