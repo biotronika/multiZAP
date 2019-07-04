@@ -2,6 +2,7 @@
 
 See: [biotronics.eu](https://biotronics.eu)
 
+**Arduino NANO R3** has too low SRAM (2kB) to make more convenient software. Wait for new one dedicated for **Arduino NANO EVERY**
 
 
 ### To compile code and upload using Arduino IDE:
@@ -14,7 +15,7 @@ See: [biotronics.eu](https://biotronics.eu)
 
 **Arduino NANO R3**
 1. Configure board: Tools->Board->Arduino Nano and **Tools->Processor->ATmega328P (Old Bootloader)**. For experimental **Arduino NANO EVERY** see below.
-2. Install Arduino Nano driver - **biotronics.eu** website: [CH341SER.ZIP]( https://biotronics.eu/sites/default/files/2016-12/CH341SER.ZIP).
+2. Install Arduino Nano driver (for clones) - **biotronics.eu** website: [CH341SER.ZIP]( https://biotronics.eu/sites/default/files/2016-12/CH341SER.ZIP).
 3. Configure serial port. Plug mini-USB cable to PC and multiZAP, and Tolls->Port->select right COM port.
 4. Compile and upload. Sketch->Upload. Wait until on down side of Arduino IDE window see **Done uploading**.
 
@@ -81,6 +82,8 @@ or
 ```
 
 Enjoy using your multiZap device and wishing you best of health :)
+
+
 
 
 ## Change log
