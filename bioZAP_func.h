@@ -47,7 +47,7 @@
 
 
 //Battery staff
-//#ifdef FIX_BUG_NANO_EVERY
+#ifdef FIX_BUG_NANO_EVERY
 #define batPin PIN_A6 //A6 as real A7 pin output
 #else
 #define batPin PIN_A7                           // Analog-in battery level

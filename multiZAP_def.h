@@ -11,7 +11,7 @@
 #define SOFT_VER "2019-07-03      "
 
 //Uncomment below line if you use Arduino Nano Every (6kB SRAM)
-#define FIX_BUG_NANO_EVERY
+//#define FIX_BUG_NANO_EVERY
 
 //Select your language
 #define EN_H_
