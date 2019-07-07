@@ -47,8 +47,8 @@
 
 
 //Battery staff
-#ifdef FIX_BUG_NANO_EVERY
-#define outVoltagePin PIN_A6 //A6 as real A7 pin output
+//#ifdef FIX_BUG_NANO_EVERY
+#define batPin PIN_A6 //A6 as real A7 pin output
 #else
 #define batPin PIN_A7                           // Analog-in battery level
 #endif
@@ -235,7 +235,7 @@ int executeCmd(String cmdLine ){
 
 
     } else if (param[0]=="pin3"){
-// Socket pin3 <state> If n¹ state pin3 = !pin3
+// Socket pin3 <state> If nï¿½ state pin3 = !pin3
 
     	if (param[1].length()==1){
         	if (param[1]=="~"){
