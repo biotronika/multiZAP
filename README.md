@@ -85,7 +85,6 @@ Enjoy using your multiZap device and wishing you best of health :)
 
 
 
-
 ## Change log
 * 2019-07-03 - Fixed measuring the battery low voltage, which turn the device off.
 * 2019-07-04 - Add FIX_BUG_NANO_EVERY directive to fix bug in **Arduino Nano Every** in Atmega328 compatibility mode (changed A7 and A6 pins)
